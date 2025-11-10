@@ -639,14 +639,21 @@ void LayeredLayoutProvider::assignCoordinates(std::vector<Layer>& layers) {
 
         // Now assign X coordinates for layers
         double currentX = 0.0;
-        for (Layer& layer : layers) {
+        std::cerr << "\nAssigning layer X positions:\n";
+        for (size_t i = 0; i < layers.size(); i++) {
+            Layer& layer = layers[i];
             double maxWidth = 0.0;
             for (LNode* node : layer.nodes) {
                 node->position.x = currentX;
                 maxWidth = std::max(maxWidth, node->size.width);
             }
+            std::cerr << "  Layer " << i << ": x=" << currentX
+                      << ", maxWidth=" << maxWidth
+                      << ", nodes=" << layer.nodes.size()
+                      << ", next x=" << (currentX + maxWidth + layerSpacing_) << "\n";
             currentX += maxWidth + layerSpacing_;
         }
+        std::cerr << "Final graph width: " << currentX - layerSpacing_ << "\n";
 
         // Cleanup segments
         for (LinearSegment* seg : linearSegments) {
