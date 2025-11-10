@@ -96,6 +96,9 @@ if(BUILD_EXAMPLES)
     add_executable(complex_test examples/complex_test.cpp)
     target_link_libraries(complex_test elk)
 
+    add_executable(multilayer_test examples/multilayer_test.cpp)
+    target_link_libraries(multilayer_test elk)
+
     add_executable(json_test examples/json_test.cpp)
     target_link_libraries(json_test elk)
 endif()

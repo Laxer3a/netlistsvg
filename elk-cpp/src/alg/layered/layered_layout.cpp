@@ -211,6 +211,11 @@ std::vector<LNode*> LayeredLayoutProvider::assignLayersLongestPath(std::vector<L
     std::vector<LNode*> sorted;
     std::unordered_set<LNode*> visited;
 
+    std::cerr << "Input node order before topo sort:\n";
+    for (size_t i = 0; i < nodes.size(); ++i) {
+        std::cerr << "  " << i << ": " << (nodes[i]->originalNode ? nodes[i]->originalNode->id : "external") << "\n";
+    }
+
     for (LNode* node : nodes) {
         if (visited.find(node) == visited.end()) {
             topologicalSortUtil(node, visited, sorted);
