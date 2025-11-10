@@ -1,0 +1,120 @@
+Manifest-Version: 1.0
+Created-By: Maven Archiver 3.5.2
+Build-Jdk-Spec: 17
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.eclipse.elk.graph.text.ui.source
+Bundle-Version: 0.9.0.202401250320
+Eclipse-SourceBundle: org.eclipse.elk.graph.text.ui;version="0.9.0.20240
+ 1250320";roots:="."
+Bundle-Name: %bundleName
+Bundle-Vendor: %bundleVendor
+Bundle-Localization: OSGI-INF/l10n/bundle-src
+
+Name: org/eclipse/elk/graph/text/ui/labeling/ElkGraphDescriptionLabelPro
+ vider.xtend
+SHA-256-Digest: u6HZpvDykouB3lupe0yXbfjisUVESQm9+WF8XRsgrQM=
+
+Name: org/eclipse/elk/graph/text/ui/labeling/ElkGraphLabelProvider.java
+SHA-256-Digest: lcriUr9fMN/HvatX4AIbYxZR9r/lFPW68DuTrn1K7JY=
+
+Name: org/eclipse/elk/graph/text/ui/AbstractElkGraphUiModule.java
+SHA-256-Digest: 3kRiSiRIi/EUMEjiLNEM03ZVbAyMXVYFk5WLA+YCGPk=
+
+Name: org/eclipse/elk/graph/text/ui/.ConvertGraphHandler.java._trace
+SHA-256-Digest: sfdN0f2es/QE3P9PJlUVx0jkzUwaZxA1ol3421djZNI=
+
+Name: org/eclipse/elk/graph/text/ui/outline/ElkGraphOutlineTreeProvider.
+ xtend
+SHA-256-Digest: hPJjh+ReQtYpjkvT+wafvIL3aR/GuLSqWZU7vD0tq/Q=
+
+Name: org/eclipse/elk/graph/text/ui/internal/TextActivator.java
+SHA-256-Digest: S47YODVWigY8r7fLExMzcNos/1AXpQk+BZp0pMwv+Uc=
+
+Name: org/eclipse/elk/graph/text/ui/.ElkGraphTextUiActivator.java._trace
+SHA-256-Digest: uSdbpIx0OEPEcDrkaS0bYMoUKAVpBzTiVHmcSCH0vqw=
+
+Name: org/eclipse/elk/graph/text/ui/ConvertGraphHandler.xtend
+SHA-256-Digest: Ruu/K/CPghaM+E/KPEYNkC256foHBHMo+UeQNIvXQY8=
+
+Name: org/eclipse/elk/graph/text/ui/labeling/ElkGraphDescriptionLabelPro
+ vider.java
+SHA-256-Digest: iSYjojVtWTkCtleSaG13NPnrHjGoAv1p8EvfqBO4kkY=
+
+Name: org/eclipse/elk/graph/text/ui/.ElkGraphUiModule.java._trace
+SHA-256-Digest: 0vmCUquijAliId5PamU493Q5H/3vlqWIBefF3ddTDT0=
+
+Name: org/eclipse/elk/graph/text/ui/outline/.ElkGraphOutlineTreeProvider
+ .java._trace
+SHA-256-Digest: zGhutYyi5McynMp1x71+E08bWiaJayZzqPvoWfSTKz0=
+
+Name: org/eclipse/elk/graph/text/ui/ElkGraphTextUiActivator.xtend
+SHA-256-Digest: 2xQaGyggZbopA9qXxnD/CrlwcZTjMIxPRafS5cM/rVg=
+
+Name: org/eclipse/elk/graph/text/ui/labeling/ElkGraphLabelProvider.xtend
+SHA-256-Digest: mOviOfNL9ZUu9K+ne8lC3ZD9wttxwsntsN+DGytU/1A=
+
+Name: org/eclipse/elk/graph/text/ui/labeling/.ElkGraphLabelProvider.java
+ ._trace
+SHA-256-Digest: AS3StFlaEzfDVMudT9GrAUlyUWaDTX+seZ64u51jUXI=
+
+Name: org/eclipse/elk/graph/text/ui/quickfix/ElkGraphQuickfixProvider.ja
+ va
+SHA-256-Digest: goSqa7NJulBaQma/2WLXUVnE9rl/Z7t/6Zvwud8hRMU=
+
+Name: org/eclipse/elk/graph/text/ui/contentassist/ElkGraphProposalProvid
+ er.xtend
+SHA-256-Digest: xG2NW5SOfktwh36OZnxQyK34yM/ZzUT/llWg7Xz0DZg=
+
+Name: org/eclipse/elk/graph/text/ui/quickfix/.ElkGraphQuickfixProvider.j
+ ava._trace
+SHA-256-Digest: o3VX1+VIhQF7avlZwJlyadMIWQEfBjJeBYEDSz6RMz0=
+
+Name: org/eclipse/elk/graph/text/ui/contentassist/ElkGraphProposalProvid
+ er.java
+SHA-256-Digest: Ecc0Xmi8i2d17BSWv6EAbjLV6gRW6d7bqkxSHT1FpI4=
+
+Name: org/eclipse/elk/graph/text/ui/ElkGraphUiModule.java
+SHA-256-Digest: E7egPv3e755z7jXi03R0F05TZPx/gDsBT8j+GR3T86U=
+
+Name: org/eclipse/elk/graph/text/ui/contentassist/.ElkGraphProposalProvi
+ der.java._trace
+SHA-256-Digest: j0quBKdro/OWFfQxtnptMCMnP5nakCWcFIvP9Z+5V3w=
+
+Name: OSGI-INF/l10n/bundle-src.properties
+SHA-256-Digest: +7jvncX3HtVuY8RT3dCQ9rCfsRRgeV+ygUzoZJsGV7Q=
+
+Name: org/eclipse/elk/graph/text/ui/outline/ElkGraphOutlineTreeProvider.
+ java
+SHA-256-Digest: 3yIR6YMRIaJ0Sj6qKcbHCKrqOZ2iIxZflGNfnfVs6JE=
+
+Name: org/eclipse/elk/graph/text/ui/ElkGraphExecutableExtensionFactory.j
+ ava
+SHA-256-Digest: silwNtgHNLH3m62/xY7Wcr0LI5exPEi90ekTulbpLwM=
+
+Name: org/eclipse/elk/graph/text/ui/ElkGraphTextUiActivator.java
+SHA-256-Digest: GtWtjmPyH+1C16aMWdsbS4KhKnTDI//oKSHbOYi1XKA=
+
+Name: org/eclipse/elk/graph/text/ui/labeling/.ElkGraphDescriptionLabelPr
+ ovider.java._trace
+SHA-256-Digest: Y6X/+jbBAQ0fOd71EmdjxsN94/pg5kq+uAC+O1ggrtY=
+
+Name: org/eclipse/elk/graph/text/ui/layout/TextLayoutConnector.java
+SHA-256-Digest: SRWEFBAcm5iQtk4OOFkKzQcEpt6J90FAb9ICfgNcpWE=
+
+Name: org/eclipse/elk/graph/text/ui/ConvertGraphHandler.java
+SHA-256-Digest: 0/3a8EG1Flm7y0xondQ/PRh4r7dLvTh435vBbi1z1l8=
+
+Name: org/eclipse/elk/graph/text/ui/layout/TextLayoutSetup.java
+SHA-256-Digest: t+ZxmaJSqg5IUyeYrlL5mlEbvnqurtPxXe2lrOqoOME=
+
+Name: org/eclipse/elk/graph/text/ui/ElkGraphUiModule.xtend
+SHA-256-Digest: tVhATNCraiyNCn4HS+EVjinnC2AtMMJ1IgUJeyqBxfw=
+
+Name: org/eclipse/elk/graph/text/ui/quickfix/ElkGraphQuickfixProvider.xt
+ end
+SHA-256-Digest: T9J40CtetA0JfkkJea2AL1YkUjKm4YGZxSa1aRZJwos=
+
+Name: org/eclipse/elk/graph/text/ui/contentassist/AbstractElkGraphPropos
+ alProvider.java
+SHA-256-Digest: 9G8+mifm1ftxrBdwIEKt2OaYkrAX2eyghETsMS76rww=
+
