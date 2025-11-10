@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="658" height="852" xmlns="http://www.w3.org/2000/svg">
+<rect width="100%" height="100%" fill="white"/>
+<g transform="translate(20, 20)">
+<text x="0" y="-5" font-family="Arial" font-size="14" font-weight="bold">C++ ELK Layout (618x812)</text>
+<rect x="12" y="272" width="30" height="25" fill="#4CAF50" stroke="black" stroke-width="1"/>
+<text x="27" y="288.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">$add$input.v...</text>
+<rect x="117" y="568" width="30" height="25" fill="#4CAF50" stroke="black" stroke-width="1"/>
+<text x="132" y="584.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">$and$input.v...</text>
+<rect x="446" y="47" width="30" height="25" fill="#4CAF50" stroke="black" stroke-width="1"/>
+<text x="461" y="63.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">$and$input.v...</text>
+<rect x="247" y="178" width="30" height="25" fill="#4CAF50" stroke="black" stroke-width="1"/>
+<text x="262" y="194.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">$procdff$40</text>
+<rect x="182" y="568" width="30" height="25" fill="#4CAF50" stroke="black" stroke-width="1"/>
+<text x="197" y="584.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">$procdff$41</text>
+<rect x="511" y="47" width="30" height="25" fill="#4CAF50" stroke="black" stroke-width="1"/>
+<text x="526" y="63.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">$procdff$42</text>
+<rect x="316" y="421" width="30" height="25" fill="#4CAF50" stroke="black" stroke-width="1"/>
+<text x="331" y="437.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">$procdff$43</text>
+<rect x="182" y="214" width="30" height="25" fill="#4CAF50" stroke="black" stroke-width="1"/>
+<text x="197" y="230.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">$procmux$36</text>
+<rect x="12" y="102" width="30" height="25" fill="#4CAF50" stroke="black" stroke-width="1"/>
+<text x="27" y="118.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">$procmux$37_...</text>
+<rect x="117" y="628" width="30" height="25" fill="#4CAF50" stroke="black" stroke-width="1"/>
+<text x="132" y="644.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">$procmux$38_...</text>
+<rect x="117" y="760" width="30" height="25" fill="#4CAF50" stroke="black" stroke-width="1"/>
+<text x="132" y="776.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">$procmux$39_...</text>
+<rect x="247" y="421" width="30" height="25" fill="#4CAF50" stroke="black" stroke-width="1"/>
+<text x="262" y="437.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">$reduce_xor$...</text>
+<rect x="316" y="325" width="30" height="25" fill="#4CAF50" stroke="black" stroke-width="1"/>
+<text x="331" y="341.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">$sub$input.v...</text>
+<rect x="12" y="552" width="30" height="25" fill="#2196F3" stroke="black" stroke-width="1"/>
+<text x="27" y="568.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">clock</text>
+<rect x="12" y="497" width="30" height="25" fill="#2196F3" stroke="black" stroke-width="1"/>
+<text x="27" y="513.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">data_in</text>
+<rect x="12" y="607" width="30" height="25" fill="#2196F3" stroke="black" stroke-width="1"/>
+<text x="27" y="623.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">up</text>
+<rect x="12" y="442" width="30" height="25" fill="#2196F3" stroke="black" stroke-width="1"/>
+<text x="27" y="458.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">down</text>
+<rect x="247" y="568" width="30" height="25" fill="#2196F3" stroke="black" stroke-width="1"/>
+<text x="262" y="584.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">carry_out</text>
+<rect x="576" y="47" width="30" height="25" fill="#2196F3" stroke="black" stroke-width="1"/>
+<text x="591" y="63.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">borrow_out</text>
+<rect x="316" y="47" width="30" height="25" fill="#2196F3" stroke="black" stroke-width="1"/>
+<text x="331" y="63.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">count_out</text>
+<rect x="381" y="421" width="30" height="25" fill="#2196F3" stroke="black" stroke-width="1"/>
+<text x="396" y="437.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">parity_out</text>
+<rect x="12" y="387" width="30" height="25" fill="#2196F3" stroke="black" stroke-width="1"/>
+<text x="27" y="403.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">11</text>
+<rect x="12" y="332" width="30" height="25" fill="#2196F3" stroke="black" stroke-width="1"/>
+<text x="27" y="348.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">10</text>
+<rect x="12" y="217" width="30" height="25" fill="#2196F3" stroke="black" stroke-width="1"/>
+<text x="27" y="233.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">01</text>
+<rect x="12" y="162" width="30" height="25" fill="#2196F3" stroke="black" stroke-width="1"/>
+<text x="27" y="178.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">00</text>
+<rect x="12" y="47" width="30" height="25" fill="#2196F3" stroke="black" stroke-width="1"/>
+<text x="27" y="63.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">101</text>
+<rect x="117" y="214" width="30" height="25" fill="#4CAF50" stroke="black" stroke-width="1"/>
+<text x="132" y="230.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">$join$,26,27...</text>
+<rect x="77" y="47" width="30" height="25" fill="#4CAF50" stroke="black" stroke-width="1"/>
+<text x="92" y="63.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">$join$,58,59...</text>
+<rect x="77" y="760" width="30" height="25" fill="#4CAF50" stroke="black" stroke-width="1"/>
+<text x="92" y="776.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">$join$,13,12,</text>
+<rect x="77" y="421" width="30" height="25" fill="#4CAF50" stroke="black" stroke-width="1"/>
+<text x="92" y="437.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">$split$,26,2...</text>
+<rect x="381" y="47" width="30" height="25" fill="#4CAF50" stroke="black" stroke-width="1"/>
+<text x="396" y="63.5" font-family="Arial" font-size="8" text-anchor="middle" fill="white">$split$,49,5...</text>
+</g>
+</svg>
