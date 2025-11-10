@@ -102,6 +102,9 @@ if(BUILD_EXAMPLES)
     add_executable(svg_output_test examples/svg_output_test.cpp)
     target_link_libraries(svg_output_test elk)
 
+    add_executable(up3down5_test examples/up3down5_test.cpp)
+    target_link_libraries(up3down5_test elk)
+
     add_executable(json_test examples/json_test.cpp)
     target_link_libraries(json_test elk)
 endif()
