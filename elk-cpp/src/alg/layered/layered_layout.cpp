@@ -723,6 +723,8 @@ std::vector<LinearSegment*> LayeredLayoutProvider::sortLinearSegments(std::vecto
                 segment->id = nextLinearSegmentID++;
                 fillSegment(node, segment);
                 segmentList.push_back(segment);
+
+                std::cerr << "  Segment " << segment->id << ": " << segment->nodes.size() << " nodes, type=" << (int)segment->nodeType << "\n";
             }
         }
     }
