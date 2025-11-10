@@ -308,6 +308,8 @@ void LayeredLayoutProvider::insertDummyNodes(std::vector<LNode*>& nodes, std::ve
 void LayeredLayoutProvider::minimizeCrossings(std::vector<Layer>& layers) {
     if (crossingStrategy_ == CrossingMinimizationStrategy::NONE) return;
 
+    std::cerr << "\n=== MINIMIZE CROSSINGS ===\n";
+
     // Simple layer sweep with barycenter heuristic
     int iterations = 5;
     for (int iter = 0; iter < iterations; ++iter) {
@@ -319,6 +321,15 @@ void LayeredLayoutProvider::minimizeCrossings(std::vector<Layer>& layers) {
         for (int i = static_cast<int>(layers.size()) - 2; i >= 0; --i) {
             barycenterHeuristic(layers[i], false);  // Use outgoing edges
         }
+    }
+
+    // Log final node order
+    for (size_t i = 0; i < layers.size(); ++i) {
+        std::cerr << "Layer " << i << " final order: ";
+        for (LNode* node : layers[i].nodes) {
+            std::cerr << (node->originalNode ? node->originalNode->id : "dummy") << " ";
+        }
+        std::cerr << "\n";
     }
 }
 
