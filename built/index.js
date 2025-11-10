@@ -26,13 +26,47 @@ function createFlatModule(skinData, yosysNetlist) {
 function dumpLayout(skinData, yosysNetlist, prelayout, done) {
     var flatModule = createFlatModule(skinData, yosysNetlist);
     var kgraph = elkGraph_1.buildElkGraph(flatModule);
+    // Log input graph details
+    console.log('\n========== ELK INPUT GRAPH ==========');
+    console.log('Number of nodes (children):', kgraph.children.length);
+    console.log('Number of edges:', kgraph.edges.length);
+    console.log('\nInput Graph (JSON):');
+    console.log(JSON.stringify(kgraph, null, 2));
     if (prelayout) {
         done(null, JSON.stringify(kgraph, null, 2));
         return;
     }
     var layoutProps = Skin_1.default.getProperties();
+    console.log('\nLayout Options:');
+    console.log(JSON.stringify(layoutProps.layoutEngine, null, 2));
     var promise = elk.layout(kgraph, { layoutOptions: layoutProps.layoutEngine });
     promise.then(function (graph) {
+        console.log('\n========== ELK OUTPUT GRAPH ==========');
+        console.log('Graph dimensions:', graph.width, 'x', graph.height);
+        console.log('\nNode positions:');
+        graph.children.forEach(function (node) {
+            console.log("  " + node.id + ": pos=(" + node.x + ", " + node.y + "), size=(" + node.width + ", " + node.height + ")");
+            if (node.ports) {
+                node.ports.forEach(function (port) {
+                    console.log("    port " + port.id + ": pos=(" + port.x + ", " + port.y + ")");
+                });
+            }
+        });
+        console.log('\nEdge routing:');
+        graph.edges.forEach(function (edge) {
+            console.log("  " + edge.id + ": " + edge.source + "." + edge.sourcePort + " -> " + edge.target + "." + edge.targetPort);
+            if (edge.sections) {
+                edge.sections.forEach(function (section, idx) {
+                    console.log("    section " + idx + ": start=(" + section.startPoint.x + ", " + section.startPoint.y + "), end=(" + section.endPoint.x + ", " + section.endPoint.y + ")");
+                    if (section.bendPoints) {
+                        console.log("      bendPoints:", section.bendPoints);
+                    }
+                });
+            }
+        });
+        console.log('\nOutput Graph (JSON):');
+        console.log(JSON.stringify(graph, null, 2));
+        console.log('========================================\n');
         done(null, JSON.stringify(graph, null, 2));
     }).catch(function (reason) {
         throw Error(reason);

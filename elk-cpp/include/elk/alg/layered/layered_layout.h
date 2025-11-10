@@ -47,7 +47,7 @@ private:
 
     // Phase 3: Layer assignment
     void assignLayers(std::vector<LNode*>& nodes, std::vector<Layer>& layers);
-    int assignLayersLongestPath(std::vector<LNode*>& nodes);
+    std::vector<LNode*> assignLayersLongestPath(std::vector<LNode*>& nodes);
 
     // Phase 4: Add dummy nodes for edges spanning multiple layers
     void insertDummyNodes(std::vector<LNode*>& nodes, std::vector<LEdge*>& edges, std::vector<Layer>& layers);
@@ -60,6 +60,17 @@ private:
     // Phase 6: Node placement (coordinate assignment)
     void assignCoordinates(std::vector<Layer>& layers);
     void linearSegmentPlacement(std::vector<Layer>& layers);
+
+    // LinearSegmentsNodePlacer algorithm (faithful port from Java)
+    std::vector<LinearSegment*> sortLinearSegments(std::vector<Layer>& layers);
+    bool fillSegment(LNode* node, LinearSegment* segment);
+    void createDependencyGraphEdges(std::vector<Layer>& layers,
+                                     std::vector<LinearSegment*>& segmentList,
+                                     std::vector<std::vector<LinearSegment*>>& outgoingList,
+                                     std::vector<int>& incomingCountList,
+                                     int& nextLinearSegmentID);
+    void createUnbalancedPlacement(std::vector<Layer>& layers,
+                                    const std::vector<LinearSegment*>& linearSegments);
 
     // Phase 7: Edge routing
     void routeEdges(const std::vector<Layer>& layers, std::vector<LEdge*>& edges);
