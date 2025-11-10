@@ -8,3 +8,4 @@ examples/**/*.png
 .yosys_extra
 package-lock.json
 built/*.test.js
+elk-cpp/build/
