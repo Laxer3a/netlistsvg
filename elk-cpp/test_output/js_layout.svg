@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="286" height="226">
+  <title>JavaScript elkjs Layout</title>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#666"/>
+    </marker>
+  </defs>
+  <rect width="100%" height="100%" fill="white"/>
+  <g id="edges" stroke="#666" stroke-width="1" fill="none" marker-end="url(#arrow)">
+    <line x1="42" y1="28.666666666666664" x2="122" y2="84.5"/>
+    <line x1="42" y1="28.666666666666664" x2="122" y2="24.5"/>
+    <line x1="42" y1="133.66666666666669" x2="122" y2="129.5"/>
+    <line x1="42" y1="133.66666666666669" x2="122" y2="189.5"/>
+    <line x1="152" y1="84.5" x2="232" y2="28.666666666666664"/>
+    <line x1="152" y1="24.5" x2="232" y2="28.666666666666664"/>
+    <line x1="152" y1="129.5" x2="232" y2="133.66666666666669"/>
+    <line x1="152" y1="189.5" x2="232" y2="133.66666666666669"/>
+  </g>
+  <g id="nodes">
+    <g id="s0">
+      <rect x="12" y="16.166666666666664" width="30" height="25" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="2"/>
+      <text x="27" y="32.666666666666664" text-anchor="middle" font-family="monospace" font-size="10" fill="#000">s0</text>
+    </g>
+    <g id="s1">
+      <rect x="12" y="121.16666666666667" width="30" height="25" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="2"/>
+      <text x="27" y="137.66666666666669" text-anchor="middle" font-family="monospace" font-size="10" fill="#000">s1</text>
+    </g>
+    <g id="p0">
+      <rect x="122" y="72" width="30" height="25" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="2"/>
+      <text x="137" y="88.5" text-anchor="middle" font-family="monospace" font-size="10" fill="#000">p0</text>
+    </g>
+    <g id="p1">
+      <rect x="122" y="12" width="30" height="25" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="2"/>
+      <text x="137" y="28.5" text-anchor="middle" font-family="monospace" font-size="10" fill="#000">p1</text>
+    </g>
+    <g id="p2">
+      <rect x="122" y="117" width="30" height="25" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="2"/>
+      <text x="137" y="133.5" text-anchor="middle" font-family="monospace" font-size="10" fill="#000">p2</text>
+    </g>
+    <g id="p3">
+      <rect x="122" y="177" width="30" height="25" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="2"/>
+      <text x="137" y="193.5" text-anchor="middle" font-family="monospace" font-size="10" fill="#000">p3</text>
+    </g>
+    <g id="t0">
+      <rect x="232" y="16.166666666666664" width="30" height="25" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="2"/>
+      <text x="247" y="32.666666666666664" text-anchor="middle" font-family="monospace" font-size="10" fill="#000">t0</text>
+    </g>
+    <g id="t1">
+      <rect x="232" y="121.16666666666667" width="30" height="25" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="2"/>
+      <text x="247" y="137.66666666666669" text-anchor="middle" font-family="monospace" font-size="10" fill="#000">t1</text>
+    </g>
+  </g>
+  <text x="10" y="15" font-family="Arial" font-size="14" font-weight="bold" fill="#000">JavaScript elkjs Layout</text>
+</svg>
