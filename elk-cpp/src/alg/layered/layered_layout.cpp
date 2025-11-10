@@ -143,33 +143,30 @@ void LayeredLayoutProvider::breakCycles(std::vector<LNode*>& nodes, std::vector<
     // Simple greedy cycle breaking: reverse edges that create cycles
     std::unordered_set<LNode*> visited;
     std::unordered_set<LNode*> recursionStack;
+    std::vector<LEdge*> edgesToReverse;
 
-    std::function<bool(LNode*)> hasCycle = [&](LNode* node) -> bool {
+    std::cerr << "\n=== BREAK CYCLES ===\n";
+
+    std::function<void(LNode*)> hasCycle = [&](LNode* node) -> void {
         visited.insert(node);
         recursionStack.insert(node);
 
-        for (LEdge* edge : node->getOutgoingEdges()) {
+        // Get edges snapshot to avoid iteration issues
+        auto outgoing = node->getOutgoingEdges();
+        for (LEdge* edge : outgoing) {
             if (!edge->reversed) {
                 LNode* targetNode = edge->getTarget()->getNode();
-                if (recursionStack.find(targetNode) != recursionStack.end()) {
-                    // Cycle detected, reverse this edge
-                    edge->reversed = true;
-                    // Swap source and target ports
-                    LPort* temp = edge->source;
-                    edge->source = edge->target;
-                    edge->target = temp;
-                    return true;
-                }
-                if (visited.find(targetNode) == visited.end()) {
-                    if (hasCycle(targetNode)) {
-                        return true;
-                    }
+                if (targetNode && recursionStack.find(targetNode) != recursionStack.end()) {
+                    // Cycle detected, mark edge for reversal
+                    edgesToReverse.push_back(edge);
+                    edge->reversed = true;  // Mark immediately to prevent revisiting
+                } else if (targetNode && visited.find(targetNode) == visited.end()) {
+                    hasCycle(targetNode);
                 }
             }
         }
 
         recursionStack.erase(node);
-        return false;
     };
 
     for (LNode* node : nodes) {
@@ -177,6 +174,35 @@ void LayeredLayoutProvider::breakCycles(std::vector<LNode*>& nodes, std::vector<
             hasCycle(node);
         }
     }
+
+    // Physically reverse edges (swap source and target) like Java does
+    for (LEdge* edge : edgesToReverse) {
+        LPort* oldSource = edge->source;
+        LPort* oldTarget = edge->target;
+
+        std::cerr << "  Reversing edge: "
+                  << (oldSource->getNode()->originalNode ? oldSource->getNode()->originalNode->id : "?")
+                  << " -> "
+                  << (oldTarget->getNode()->originalNode ? oldTarget->getNode()->originalNode->id : "?")
+                  << "\n";
+
+        // Remove edge from old port lists
+        auto& srcOut = oldSource->outgoingEdges;
+        srcOut.erase(std::remove(srcOut.begin(), srcOut.end(), edge), srcOut.end());
+
+        auto& tgtIn = oldTarget->incomingEdges;
+        tgtIn.erase(std::remove(tgtIn.begin(), tgtIn.end(), edge), tgtIn.end());
+
+        // Swap source and target
+        edge->source = oldTarget;
+        edge->target = oldSource;
+
+        // Add edge to new port lists
+        oldTarget->outgoingEdges.push_back(edge);
+        oldSource->incomingEdges.push_back(edge);
+    }
+
+    std::cerr << "Reversed " << edgesToReverse.size() << " edges to break cycles\n";
 }
 
 void LayeredLayoutProvider::assignLayers(std::vector<LNode*>& nodes, std::vector<Layer>& layers) {
@@ -207,54 +233,73 @@ void LayeredLayoutProvider::assignLayers(std::vector<LNode*>& nodes, std::vector
 }
 
 std::vector<LNode*> LayeredLayoutProvider::assignLayersLongestPath(std::vector<LNode*>& nodes) {
-    // Topological ordering
-    std::vector<LNode*> sorted;
-    std::unordered_set<LNode*> visited;
+    std::cerr << "\n=== LONGEST PATH LAYERING (to sink) ===\n";
 
-    std::cerr << "Input node order before topo sort:\n";
-    for (size_t i = 0; i < nodes.size(); ++i) {
-        std::cerr << "  " << i << ": " << (nodes[i]->originalNode ? nodes[i]->originalNode->id : "external") << "\n";
-    }
-
+    // Initialize all nodes with unvisited marker (-1)
+    std::unordered_map<LNode*, int> nodeHeights;
     for (LNode* node : nodes) {
-        if (visited.find(node) == visited.end()) {
-            topologicalSortUtil(node, visited, sorted);
+        nodeHeights[node] = -1;
+    }
+
+    // Visit function: calculates longest path to any sink
+    std::function<int(LNode*)> visit = [&](LNode* node) -> int {
+        int height = nodeHeights[node];
+        if (height >= 0) {
+            // Already visited
+            return height;
         }
-    }
 
-    std::reverse(sorted.begin(), sorted.end());
+        int maxHeight = 1;  // Minimum height is 1
 
-    std::cerr << "\n=== LONGEST PATH LAYERING ===\n";
-    std::cerr << "Topological order (" << sorted.size() << " nodes):\n";
-    for (size_t i = 0; i < sorted.size() && i < 20; ++i) {
-        auto* node = sorted[i];
-        std::cerr << "  " << i << ": " << (node->originalNode ? node->originalNode->id : "external")
-                  << " (in:" << node->getIncomingEdges().size()
-                  << " out:" << node->getOutgoingEdges().size() << ")\n";
-    }
+        // Check all outgoing edges to find longest path to sink
+        for (LPort* port : node->getPorts()) {
+            for (LEdge* edge : port->outgoingEdges) {
+                LNode* targetNode = edge->getTarget()->getNode();
 
-    // Assign layers using longest path
-    int maxLayer = 0;
-    for (LNode* node : sorted) {
-        int maxPredLayer = -1;
-        for (LEdge* edge : node->getIncomingEdges()) {
-            if (!edge->reversed) {
-                LNode* sourceNode = edge->getSource()->getNode();
-                if (sourceNode) {
-                    maxPredLayer = std::max(maxPredLayer, sourceNode->layerIndex);
+                // Ignore self-loops
+                if (node != targetNode && targetNode) {
+                    int targetHeight = visit(targetNode);
+                    maxHeight = std::max(maxHeight, targetHeight + 1);
                 }
             }
         }
-        node->layerIndex = maxPredLayer + 1;
-        maxLayer = std::max(maxLayer, node->layerIndex);
+
+        nodeHeights[node] = maxHeight;
 
         if (node->originalNode) {
-            std::cerr << "  " << node->originalNode->id << " -> layer " << node->layerIndex
-                      << " (maxPred=" << maxPredLayer << ")\n";
+            std::cerr << "  " << node->originalNode->id << " height=" << maxHeight << "\n";
+        }
+
+        return maxHeight;
+    };
+
+    // Visit all nodes to calculate heights
+    int maxHeight = 0;
+    for (LNode* node : nodes) {
+        if (nodeHeights[node] < 0) {
+            int height = visit(node);
+            maxHeight = std::max(maxHeight, height);
         }
     }
 
-    return sorted;  // Return sorted vector for layer assignment
+    std::cerr << "Max height: " << maxHeight << "\n";
+
+    // Convert heights to layer indices
+    // Java formula: layerIndex = totalLayers - height
+    // where totalLayers = maxHeight
+    std::cerr << "\nConverting heights to layers:\n";
+    for (LNode* node : nodes) {
+        int height = nodeHeights[node];
+        node->layerIndex = maxHeight - height;
+
+        if (node->originalNode) {
+            std::cerr << "  " << node->originalNode->id
+                      << " height=" << height
+                      << " -> layer=" << node->layerIndex << "\n";
+        }
+    }
+
+    return nodes;  // Return nodes vector (order doesn't matter for this algorithm)
 }
 
 void LayeredLayoutProvider::insertDummyNodes(std::vector<LNode*>& nodes, std::vector<LEdge*>& edges,
