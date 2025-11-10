@@ -92,4 +92,10 @@ if(BUILD_EXAMPLES)
 
     add_executable(netlistsvg_test examples/netlistsvg_test.cpp)
     target_link_libraries(netlistsvg_test elk)
+
+    add_executable(complex_test examples/complex_test.cpp)
+    target_link_libraries(complex_test elk)
+
+    add_executable(json_test examples/json_test.cpp)
+    target_link_libraries(json_test elk)
 endif()
