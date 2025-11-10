@@ -637,21 +637,33 @@ void LayeredLayoutProvider::assignCoordinates(std::vector<Layer>& layers) {
         // Phase 3: Balance placement (SKIPPED for now - can add later)
         // balancePlacement(layers, linearSegments);
 
-        // Now assign X coordinates for layers
-        double currentX = 0.0;
-        std::cerr << "\nAssigning layer X positions:\n";
+        // Calculate layer sizes (width) based on Java's LayerSizeAndGraphHeightCalculator
+        // Layer width = max(node.width + node.margin.left + node.margin.right)
+        std::vector<double> layerWidths(layers.size(), 0.0);
         for (size_t i = 0; i < layers.size(); i++) {
             Layer& layer = layers[i];
-            double maxWidth = 0.0;
             for (LNode* node : layer.nodes) {
-                node->position.x = currentX;
-                maxWidth = std::max(maxWidth, node->size.width);
+                double nodeWidth = node->size.width + node->margin.left + node->margin.right;
+                layerWidths[i] = std::max(layerWidths[i], nodeWidth);
             }
+        }
+
+        // Now assign X coordinates for layers
+        double currentX = 0.0;
+        std::cerr << "\nAssigning layer X positions (with margins):\n";
+        for (size_t i = 0; i < layers.size(); i++) {
+            Layer& layer = layers[i];
+
+            // Place nodes horizontally within the layer (left-aligned)
+            for (LNode* node : layer.nodes) {
+                node->position.x = currentX + node->margin.left;
+            }
+
             std::cerr << "  Layer " << i << ": x=" << currentX
-                      << ", maxWidth=" << maxWidth
-                      << ", nodes=" << layer.nodes.size()
-                      << ", next x=" << (currentX + maxWidth + layerSpacing_) << "\n";
-            currentX += maxWidth + layerSpacing_;
+                      << ", width=" << layerWidths[i]
+                      << " (nodes=" << layer.nodes.size() << ")"
+                      << ", next x=" << (currentX + layerWidths[i] + layerSpacing_) << "\n";
+            currentX += layerWidths[i] + layerSpacing_;
         }
         std::cerr << "Final graph width: " << currentX - layerSpacing_ << "\n";
 
