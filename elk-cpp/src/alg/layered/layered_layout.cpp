@@ -140,69 +140,199 @@ void LayeredLayoutProvider::importGraph(Node* graph, std::vector<LNode*>& nodes,
 }
 
 void LayeredLayoutProvider::breakCycles(std::vector<LNode*>& nodes, std::vector<LEdge*>& edges) {
-    // Simple greedy cycle breaking: reverse edges that create cycles
-    std::unordered_set<LNode*> visited;
-    std::unordered_set<LNode*> recursionStack;
-    std::vector<LEdge*> edgesToReverse;
+    std::cerr << "\n=== BREAK CYCLES (Greedy Algorithm) ===\n";
 
-    std::cerr << "\n=== BREAK CYCLES ===\n";
+    // Greedy cycle breaking algorithm based on Java ELK's GreedyCycleBreaker
+    // Assigns ordering marks to nodes, then reverses edges that point backwards
 
-    std::function<void(LNode*)> hasCycle = [&](LNode* node) -> void {
-        visited.insert(node);
-        recursionStack.insert(node);
+    int nodeCount = nodes.size();
+    std::vector<int> indeg(nodeCount, 0);
+    std::vector<int> outdeg(nodeCount, 0);
+    std::vector<int> mark(nodeCount, 0);
+    std::deque<LNode*> sources;
+    std::deque<LNode*> sinks;
+    std::unordered_map<LNode*, int> nodeIndex;
 
-        // Get edges snapshot to avoid iteration issues
-        auto outgoing = node->getOutgoingEdges();
-        for (LEdge* edge : outgoing) {
-            if (!edge->reversed) {
+    // Assign indices and calculate degrees
+    for (int i = 0; i < nodeCount; i++) {
+        nodeIndex[nodes[i]] = i;
+
+        for (LPort* port : nodes[i]->getPorts()) {
+            for (LEdge* edge : port->incomingEdges) {
+                LNode* sourceNode = edge->getSource()->getNode();
+                if (sourceNode != nodes[i]) {  // ignore self-loops
+                    // Get priority from edge properties (default 0)
+                    int priority = 0;  // TODO: read from edge properties if available
+                    indeg[i] += priority > 0 ? priority + 1 : 1;
+                }
+            }
+
+            for (LEdge* edge : port->outgoingEdges) {
                 LNode* targetNode = edge->getTarget()->getNode();
-                if (targetNode && recursionStack.find(targetNode) != recursionStack.end()) {
-                    // Cycle detected, mark edge for reversal
-                    edgesToReverse.push_back(edge);
-                    edge->reversed = true;  // Mark immediately to prevent revisiting
-                } else if (targetNode && visited.find(targetNode) == visited.end()) {
-                    hasCycle(targetNode);
+                if (targetNode != nodes[i]) {  // ignore self-loops
+                    int priority = 0;  // TODO: read from edge properties if available
+                    outdeg[i] += priority > 0 ? priority + 1 : 1;
                 }
             }
         }
 
-        recursionStack.erase(node);
-    };
-
-    for (LNode* node : nodes) {
-        if (visited.find(node) == visited.end()) {
-            hasCycle(node);
+        // Collect initial sources and sinks
+        if (outdeg[i] == 0) {
+            sinks.push_back(nodes[i]);
+        } else if (indeg[i] == 0) {
+            sources.push_back(nodes[i]);
         }
     }
 
-    // Physically reverse edges (swap source and target) like Java does
-    for (LEdge* edge : edgesToReverse) {
-        LPort* oldSource = edge->source;
-        LPort* oldTarget = edge->target;
+    std::cerr << "Initial: " << sources.size() << " sources, " << sinks.size() << " sinks\n";
 
-        std::cerr << "  Reversing edge: "
-                  << (oldSource->getNode()->originalNode ? oldSource->getNode()->originalNode->id : "?")
-                  << " -> "
-                  << (oldTarget->getNode()->originalNode ? oldTarget->getNode()->originalNode->id : "?")
-                  << "\n";
+    // Assign marks to nodes
+    int nextRight = -1;
+    int nextLeft = 1;
+    int unprocessedCount = nodeCount;
 
-        // Remove edge from old port lists
-        auto& srcOut = oldSource->outgoingEdges;
-        srcOut.erase(std::remove(srcOut.begin(), srcOut.end(), edge), srcOut.end());
+    auto updateNeighbors = [&](LNode* node) {
+        for (LPort* port : node->getPorts()) {
+            // Check both incoming and outgoing edges
+            for (LEdge* edge : port->incomingEdges) {
+                LNode* endpoint = edge->getSource()->getNode();
+                if (node == endpoint) continue;  // exclude self-loops
 
-        auto& tgtIn = oldTarget->incomingEdges;
-        tgtIn.erase(std::remove(tgtIn.begin(), tgtIn.end(), edge), tgtIn.end());
+                int priority = 0;  // TODO: read from properties
+                int idx = nodeIndex[endpoint];
 
-        // Swap source and target
-        edge->source = oldTarget;
-        edge->target = oldSource;
+                if (mark[idx] == 0) {  // unprocessed node
+                    outdeg[idx] -= priority + 1;
+                    if (outdeg[idx] <= 0 && indeg[idx] > 0) {
+                        sinks.push_back(endpoint);
+                    }
+                }
+            }
 
-        // Add edge to new port lists
-        oldTarget->outgoingEdges.push_back(edge);
-        oldSource->incomingEdges.push_back(edge);
+            for (LEdge* edge : port->outgoingEdges) {
+                LNode* endpoint = edge->getTarget()->getNode();
+                if (node == endpoint) continue;  // exclude self-loops
+
+                int priority = 0;  // TODO: read from properties
+                int idx = nodeIndex[endpoint];
+
+                if (mark[idx] == 0) {  // unprocessed node
+                    indeg[idx] -= priority + 1;
+                    if (indeg[idx] <= 0 && outdeg[idx] > 0) {
+                        sources.push_back(endpoint);
+                    }
+                }
+            }
+        }
+    };
+
+    while (unprocessedCount > 0) {
+        // Process sinks (place to the right)
+        while (!sinks.empty()) {
+            LNode* sink = sinks.front();
+            sinks.pop_front();
+            mark[nodeIndex[sink]] = nextRight--;
+            updateNeighbors(sink);
+            unprocessedCount--;
+        }
+
+        // Process sources (place to the left)
+        while (!sources.empty()) {
+            LNode* source = sources.front();
+            sources.pop_front();
+            mark[nodeIndex[source]] = nextLeft++;
+            updateNeighbors(source);
+            unprocessedCount--;
+        }
+
+        // Process remaining nodes with maximum outflow
+        if (unprocessedCount > 0) {
+            int maxOutflow = INT_MIN;
+            LNode* maxNode = nullptr;
+
+            for (LNode* node : nodes) {
+                int idx = nodeIndex[node];
+                if (mark[idx] == 0) {
+                    int outflow = outdeg[idx] - indeg[idx];
+                    if (outflow > maxOutflow) {
+                        maxOutflow = outflow;
+                        maxNode = node;
+                    }
+                }
+            }
+
+            if (maxNode) {
+                mark[nodeIndex[maxNode]] = nextLeft++;
+                updateNeighbors(maxNode);
+                unprocessedCount--;
+            }
+        }
     }
 
-    std::cerr << "Reversed " << edgesToReverse.size() << " edges to break cycles\n";
+    // Shift negative marks to positive
+    int shiftBase = nodeCount + 1;
+    for (int i = 0; i < nodeCount; i++) {
+        if (mark[i] < 0) {
+            mark[i] += shiftBase;
+        }
+    }
+
+    // Debug: print marks
+    std::cerr << "Node ordering marks:\n";
+    for (int i = 0; i < std::min(10, nodeCount); i++) {
+        std::cerr << "  " << (nodes[i]->originalNode ? nodes[i]->originalNode->id : "?")
+                  << " mark=" << mark[i] << "\n";
+    }
+
+    // Reverse edges that point left (source mark > target mark)
+    int reversedCount = 0;
+    for (LNode* node : nodes) {
+        // Copy port list to avoid modification during iteration
+        std::vector<LPort*> portsCopy(node->getPorts().begin(), node->getPorts().end());
+
+        for (LPort* port : portsCopy) {
+            // Copy edge list to avoid modification during iteration
+            std::vector<LEdge*> outgoingCopy(port->outgoingEdges.begin(), port->outgoingEdges.end());
+
+            for (LEdge* edge : outgoingCopy) {
+                LNode* targetNode = edge->getTarget()->getNode();
+                int nodeIdx = nodeIndex[node];
+                int targetIdx = nodeIndex[targetNode];
+
+                if (mark[nodeIdx] > mark[targetIdx]) {
+                    // This edge points backwards, reverse it
+                    LPort* oldSource = edge->source;
+                    LPort* oldTarget = edge->target;
+
+                    std::cerr << "  Reversing: "
+                              << (oldSource->getNode()->originalNode ? oldSource->getNode()->originalNode->id : "?")
+                              << " (mark=" << mark[nodeIdx] << ") -> "
+                              << (oldTarget->getNode()->originalNode ? oldTarget->getNode()->originalNode->id : "?")
+                              << " (mark=" << mark[targetIdx] << ")\n";
+
+                    // Remove from old port lists
+                    auto& srcOut = oldSource->outgoingEdges;
+                    srcOut.erase(std::remove(srcOut.begin(), srcOut.end(), edge), srcOut.end());
+
+                    auto& tgtIn = oldTarget->incomingEdges;
+                    tgtIn.erase(std::remove(tgtIn.begin(), tgtIn.end(), edge), tgtIn.end());
+
+                    // Swap source and target
+                    edge->source = oldTarget;
+                    edge->target = oldSource;
+                    edge->reversed = true;
+
+                    // Add to new port lists
+                    oldTarget->outgoingEdges.push_back(edge);
+                    oldSource->incomingEdges.push_back(edge);
+
+                    reversedCount++;
+                }
+            }
+        }
+    }
+
+    std::cerr << "Reversed " << reversedCount << " edges to break cycles\n";
 }
 
 void LayeredLayoutProvider::assignLayers(std::vector<LNode*>& nodes, std::vector<Layer>& layers) {
