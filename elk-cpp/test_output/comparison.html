@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>C++ vs JavaScript ELK Layout Comparison</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        .layout {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .layout h2 {
+            margin-top: 0;
+            text-align: center;
+        }
+        .positions {
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .positions h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+        .diff {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .diff h2 {
+            margin-top: 0;
+        }
+        .diff-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .diff-table th, .diff-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .diff-table th {
+            background: #f5f5f5;
+            font-weight: bold;
+        }
+        .highlight {
+            background: #fff3cd;
+        }
+    </style>
+</head>
+<body>
+    <h1>C++ ELK vs JavaScript elkjs Layout Comparison</h1>
+    <p style="text-align: center; color: #666;">Same 8-node graph, different topological sort order results in different but valid layouts</p>
+
+    <div class="container">
+        <div class="layout">
+            <h2 style="color: #1976d2;">C++ Implementation</h2>
+            <object data="/tmp/cpp_layout.svg" type="image/svg+xml" width="286" height="276"></object>
+            <div class="positions">
+                <h3>Node Positions:</h3>
+                <div>s0: (12, 107) &nbsp; s1: (12, 47)</div>
+                <div>p0: (122, 227) &nbsp; p1: (122, 167)</div>
+                <div>p2: (122, 107) &nbsp; p3: (122, 47)</div>
+                <div>t0: (232, 107) &nbsp; t1: (232, 47)</div>
+            </div>
+        </div>
+
+        <div class="layout">
+            <h2 style="color: #f57c00;">JavaScript elkjs</h2>
+            <object data="/tmp/js_layout.svg" type="image/svg+xml" width="286" height="226"></object>
+            <div class="positions">
+                <h3>Node Positions:</h3>
+                <div>s0: (12, 16) &nbsp; s1: (12, 121)</div>
+                <div>p0: (122, 72) &nbsp; p1: (122, 12)</div>
+                <div>p2: (122, 117) &nbsp; p3: (122, 177)</div>
+                <div>t0: (232, 16) &nbsp; t1: (232, 121)</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="diff">
+        <h2>Analysis: Node Ordering Differences</h2>
+        <table class="diff-table">
+            <tr>
+                <th>Layer</th>
+                <th>C++ Order</th>
+                <th>JavaScript Order</th>
+                <th>Note</th>
+            </tr>
+            <tr class="highlight">
+                <td>0 (sources)</td>
+                <td>s1, s0</td>
+                <td>s0, s1</td>
+                <td>⚠️ Reversed</td>
+            </tr>
+            <tr class="highlight">
+                <td>1 (middle)</td>
+                <td>p3, p2, p1, p0</td>
+                <td>p1, p0, p2, p3</td>
+                <td>⚠️ Different grouping</td>
+            </tr>
+            <tr class="highlight">
+                <td>2 (sinks)</td>
+                <td>t1, t0</td>
+                <td>t0, t1</td>
+                <td>⚠️ Reversed</td>
+            </tr>
+        </table>
+
+        <h3 style="margin-top: 20px;">Root Cause</h3>
+        <p><strong>Topological Sort Order:</strong></p>
+        <ul>
+            <li><strong>C++:</strong> DFS produces: s1, p3, p2, t1, s0, p1, p0, t0</li>
+            <li><strong>JavaScript:</strong> Maintains closer to input order: s0, s1, p0, p1, p2, p3, t0, t1</li>
+        </ul>
+
+        <p><strong>Why Different?</strong></p>
+        <p>Topological sort is <strong>not unique</strong> - multiple valid orderings exist for any DAG.
+           The C++ DFS-based approach and JavaScript's approach produce different but equally correct orderings.</p>
+
+        <h3 style="margin-top: 20px;">Algorithm Compliance ✅</h3>
+        <ul>
+            <li>✅ Both use stable sort for crossing minimization</li>
+            <li>✅ Both use barycenter heuristic</li>
+            <li>✅ Both use LinearSegmentsNodePlacer</li>
+            <li>✅ No edge crossings in either layout</li>
+            <li>✅ Both layouts are topologically valid</li>
+        </ul>
+    </div>
+</body>
+</html>
