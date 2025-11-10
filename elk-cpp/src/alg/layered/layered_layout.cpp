@@ -143,33 +143,30 @@ void LayeredLayoutProvider::breakCycles(std::vector<LNode*>& nodes, std::vector<
     // Simple greedy cycle breaking: reverse edges that create cycles
     std::unordered_set<LNode*> visited;
     std::unordered_set<LNode*> recursionStack;
+    std::vector<LEdge*> edgesToReverse;
 
-    std::function<bool(LNode*)> hasCycle = [&](LNode* node) -> bool {
+    std::cerr << "\n=== BREAK CYCLES ===\n";
+
+    std::function<void(LNode*)> hasCycle = [&](LNode* node) -> void {
         visited.insert(node);
         recursionStack.insert(node);
 
-        for (LEdge* edge : node->getOutgoingEdges()) {
+        // Get edges snapshot to avoid iteration issues
+        auto outgoing = node->getOutgoingEdges();
+        for (LEdge* edge : outgoing) {
             if (!edge->reversed) {
                 LNode* targetNode = edge->getTarget()->getNode();
-                if (recursionStack.find(targetNode) != recursionStack.end()) {
-                    // Cycle detected, reverse this edge
-                    edge->reversed = true;
-                    // Swap source and target ports
-                    LPort* temp = edge->source;
-                    edge->source = edge->target;
-                    edge->target = temp;
-                    return true;
-                }
-                if (visited.find(targetNode) == visited.end()) {
-                    if (hasCycle(targetNode)) {
-                        return true;
-                    }
+                if (targetNode && recursionStack.find(targetNode) != recursionStack.end()) {
+                    // Cycle detected, mark edge for reversal
+                    edgesToReverse.push_back(edge);
+                    edge->reversed = true;  // Mark immediately to prevent revisiting
+                } else if (targetNode && visited.find(targetNode) == visited.end()) {
+                    hasCycle(targetNode);
                 }
             }
         }
 
         recursionStack.erase(node);
-        return false;
     };
 
     for (LNode* node : nodes) {
@@ -177,6 +174,32 @@ void LayeredLayoutProvider::breakCycles(std::vector<LNode*>& nodes, std::vector<
             hasCycle(node);
         }
     }
+
+    // Now reverse all collected edges
+    for (LEdge* edge : edgesToReverse) {
+        std::cerr << "  Reversing edge: "
+                  << (edge->getSource()->getNode()->originalNode ? edge->getSource()->getNode()->originalNode->id : "?")
+                  << " -> "
+                  << (edge->getTarget()->getNode()->originalNode ? edge->getTarget()->getNode()->originalNode->id : "?")
+                  << "\n";
+
+        LPort* oldSource = edge->source;
+        LPort* oldTarget = edge->target;
+
+        // Remove from old port lists
+        oldSource->getOutgoingEdges().remove(edge);
+        oldTarget->getIncomingEdges().remove(edge);
+
+        // Swap
+        edge->source = oldTarget;
+        edge->target = oldSource;
+
+        // Add to new port lists
+        edge->source->getOutgoingEdges().push_back(edge);
+        edge->target->getIncomingEdges().push_back(edge);
+    }
+
+    std::cerr << "Reversed " << edgesToReverse.size() << " edges to break cycles\n";
 }
 
 void LayeredLayoutProvider::assignLayers(std::vector<LNode*>& nodes, std::vector<Layer>& layers) {
