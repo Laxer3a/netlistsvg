@@ -308,6 +308,8 @@ int main() {
     auto e0 = root->addEdge("e0");
     e0->sourcePorts.push_back(node__D_procdff_D_40_p0);
     node__D_procdff_D_40_p0->outgoingEdges.push_back(e0);
+    e0->targetPorts.push_back(node__D_add_D_input_P_v_C_17_D_3_p0);
+    node__D_add_D_input_P_v_C_17_D_3_p0->incomingEdges.push_back(e0);
 
     auto e1 = root->addEdge("e1");
     e1->sourcePorts.push_back(node__D_procdff_D_40_p0);
@@ -318,6 +320,8 @@ int main() {
     auto e2 = root->addEdge("e2");
     e2->sourcePorts.push_back(node__D_procdff_D_40_p0);
     node__D_procdff_D_40_p0->outgoingEdges.push_back(e2);
+    e2->targetPorts.push_back(node__D_sub_D_input_P_v_C_16_D_2_p0);
+    node__D_sub_D_input_P_v_C_16_D_2_p0->incomingEdges.push_back(e2);
 
     auto e3 = root->addEdge("e3");
     e3->sourcePorts.push_back(node__D_procdff_D_40_p0);
@@ -328,10 +332,14 @@ int main() {
     auto e4 = root->addEdge("e4");
     e4->sourcePorts.push_back(node_11_p0);
     node_11_p0->outgoingEdges.push_back(e4);
+    e4->targetPorts.push_back(node__D_add_D_input_P_v_C_17_D_3_p1);
+    node__D_add_D_input_P_v_C_17_D_3_p1->incomingEdges.push_back(e4);
 
     auto e5 = root->addEdge("e5");
     e5->sourcePorts.push_back(node_up_p0);
     node_up_p0->outgoingEdges.push_back(e5);
+    e5->targetPorts.push_back(node__D_and_D_input_P_v_C_28_D_5_p0);
+    node__D_and_D_input_P_v_C_28_D_5_p0->incomingEdges.push_back(e5);
 
     auto e6 = root->addEdge("e6");
     e6->sourcePorts.push_back(node_up_p0);
@@ -342,10 +350,14 @@ int main() {
     auto e7 = root->addEdge("e7");
     e7->sourcePorts.push_back(node__D_split_D__26_27_28_29_30_31_32_33_34_35__p1);
     node__D_split_D__26_27_28_29_30_31_32_33_34_35__p1->outgoingEdges.push_back(e7);
+    e7->targetPorts.push_back(node__D_and_D_input_P_v_C_28_D_5_p1);
+    node__D_and_D_input_P_v_C_28_D_5_p1->incomingEdges.push_back(e7);
 
     auto e8 = root->addEdge("e8");
     e8->sourcePorts.push_back(node_down_p0);
     node_down_p0->outgoingEdges.push_back(e8);
+    e8->targetPorts.push_back(node__D_and_D_input_P_v_C_29_D_6_p0);
+    node__D_and_D_input_P_v_C_29_D_6_p0->incomingEdges.push_back(e8);
 
     auto e9 = root->addEdge("e9");
     e9->sourcePorts.push_back(node_down_p0);
@@ -356,6 +368,8 @@ int main() {
     auto e10 = root->addEdge("e10");
     e10->sourcePorts.push_back(node__D_split_D__49_50_51_52_53_54_55_56_57_37__p1);
     node__D_split_D__49_50_51_52_53_54_55_56_57_37__p1->outgoingEdges.push_back(e10);
+    e10->targetPorts.push_back(node__D_and_D_input_P_v_C_29_D_6_p1);
+    node__D_and_D_input_P_v_C_29_D_6_p1->incomingEdges.push_back(e10);
 
     auto e11 = root->addEdge("e11");
     e11->sourcePorts.push_back(node_clock_p0);
@@ -390,16 +404,24 @@ int main() {
     auto e16 = root->addEdge("e16");
     e16->sourcePorts.push_back(node__D_procmux_D_36_p3);
     node__D_procmux_D_36_p3->outgoingEdges.push_back(e16);
+    e16->targetPorts.push_back(node__D_reduce_xor_D_input_P_v_C_27_D_4_p0);
+    node__D_reduce_xor_D_input_P_v_C_27_D_4_p0->incomingEdges.push_back(e16);
 
     auto e17 = root->addEdge("e17");
+    e17->sourcePorts.push_back(node__D_and_D_input_P_v_C_28_D_5_p2);
+    node__D_and_D_input_P_v_C_28_D_5_p2->outgoingEdges.push_back(e17);
     e17->targetPorts.push_back(node__D_procdff_D_41_p3);
     node__D_procdff_D_41_p3->incomingEdges.push_back(e17);
 
     auto e18 = root->addEdge("e18");
+    e18->sourcePorts.push_back(node__D_and_D_input_P_v_C_29_D_6_p2);
+    node__D_and_D_input_P_v_C_29_D_6_p2->outgoingEdges.push_back(e18);
     e18->targetPorts.push_back(node__D_procdff_D_42_p3);
     node__D_procdff_D_42_p3->incomingEdges.push_back(e18);
 
     auto e19 = root->addEdge("e19");
+    e19->sourcePorts.push_back(node__D_reduce_xor_D_input_P_v_C_27_D_4_p2);
+    node__D_reduce_xor_D_input_P_v_C_27_D_4_p2->outgoingEdges.push_back(e19);
     e19->targetPorts.push_back(node__D_procdff_D_43_p3);
     node__D_procdff_D_43_p3->incomingEdges.push_back(e19);
 
@@ -454,6 +476,8 @@ int main() {
     auto e28 = root->addEdge("e28");
     e28->sourcePorts.push_back(node_101_p0);
     node_101_p0->outgoingEdges.push_back(e28);
+    e28->targetPorts.push_back(node__D_sub_D_input_P_v_C_16_D_2_p1);
+    node__D_sub_D_input_P_v_C_16_D_2_p1->incomingEdges.push_back(e28);
 
     auto e29 = root->addEdge("e29");
     e29->sourcePorts.push_back(node__D_procdff_D_41_p0);
@@ -510,10 +534,14 @@ int main() {
     node__D_join_D__58_59_60__p2->incomingEdges.push_back(e37);
 
     auto e38 = root->addEdge("e38");
+    e38->sourcePorts.push_back(node__D_add_D_input_P_v_C_17_D_3_p2);
+    node__D_add_D_input_P_v_C_17_D_3_p2->outgoingEdges.push_back(e38);
     e38->targetPorts.push_back(node__D_split_D__26_27_28_29_30_31_32_33_34_35__p0);
     node__D_split_D__26_27_28_29_30_31_32_33_34_35__p0->incomingEdges.push_back(e38);
 
     auto e39 = root->addEdge("e39");
+    e39->sourcePorts.push_back(node__D_sub_D_input_P_v_C_16_D_2_p2);
+    node__D_sub_D_input_P_v_C_16_D_2_p2->outgoingEdges.push_back(e39);
     e39->targetPorts.push_back(node__D_split_D__49_50_51_52_53_54_55_56_57_37__p0);
     node__D_split_D__49_50_51_52_53_54_55_56_57_37__p0->incomingEdges.push_back(e39);
 
