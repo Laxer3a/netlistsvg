@@ -360,7 +360,91 @@ void LayeredLayoutProvider::barycenterHeuristic(Layer& layer, bool useIncoming) 
 }
 
 void LayeredLayoutProvider::assignCoordinates(std::vector<Layer>& layers) {
-    linearSegmentPlacement(layers);
+    std::cerr << "\n=== ASSIGN COORDINATES ===\n";
+
+    // For DOWN direction, layers go top-to-bottom (along Y)
+    // For RIGHT direction, layers go left-to-right (along X)
+    // LinearSegmentsNodePlacer places nodes along Y within layers (for RIGHT)
+    // For DOWN, we need to transform: swap layer axis and node axis
+
+    if (direction_ == Direction::DOWN || direction_ == Direction::UP) {
+        // For DOWN: layers along Y, nodes within layer along X
+        // Need to account for port extents just like the old algorithm
+
+        // Pass 1: Pre-calculate port extents for all layers
+        for (size_t layerIdx = 0; layerIdx < layers.size(); ++layerIdx) {
+            Layer& layer = layers[layerIdx];
+            double maxPortExtentBelow = 0.0;
+            double maxPortExtentAbove = 0.0;
+
+            for (LNode* node : layer.nodes) {
+                for (LPort* port : node->ports) {
+                    double extentBelow = port->position.y - node->size.height;
+                    double extentAbove = -port->position.y;
+                    maxPortExtentBelow = std::max(maxPortExtentBelow, extentBelow);
+                    maxPortExtentAbove = std::max(maxPortExtentAbove, extentAbove);
+                }
+            }
+
+            layer.maxPortExtentBelow = maxPortExtentBelow;
+            layer.maxPortExtentAbove = maxPortExtentAbove;
+        }
+
+        // Pass 2: Position layers accounting for port extents
+        double currentY = 0.0;
+        for (size_t layerIdx = 0; layerIdx < layers.size(); ++layerIdx) {
+            Layer& layer = layers[layerIdx];
+            double currentX = 0.0;
+            double maxHeight = 0.0;
+
+            for (LNode* node : layer.nodes) {
+                node->position.x = currentX;
+                node->position.y = currentY;
+                currentX += node->size.width + nodeSpacing_;
+                maxHeight = std::max(maxHeight, node->size.height);
+            }
+
+            // Calculate spacing to next layer
+            double effectiveSpacing = layerSpacing_;
+            effectiveSpacing += layer.maxPortExtentBelow;  // This layer's ports extending down
+            if (layerIdx + 1 < layers.size()) {
+                effectiveSpacing += layers[layerIdx + 1].maxPortExtentAbove;  // Next layer's ports extending up
+            }
+
+            currentY += maxHeight + effectiveSpacing;
+        }
+    } else {
+        // For RIGHT/LEFT: layers along X, nodes within layer along Y
+        // Use LinearSegmentsNodePlacer for Y, then assign layer X
+
+        // Port of LinearSegmentsNodePlacer.place() (Java line 206)
+        // Phase 1: Sort linear segments with dependency graph
+        std::vector<LinearSegment*> linearSegments = sortLinearSegments(layers);
+
+        // Phase 2: Create unbalanced placement (assigns Y within layers)
+        createUnbalancedPlacement(layers, linearSegments);
+
+        // Phase 3: Balance placement (SKIPPED for now - can add later)
+        // balancePlacement(layers, linearSegments);
+
+        // Now assign X coordinates for layers
+        double currentX = 0.0;
+        for (Layer& layer : layers) {
+            double maxWidth = 0.0;
+            for (LNode* node : layer.nodes) {
+                node->position.x = currentX;
+                maxWidth = std::max(maxWidth, node->size.width);
+            }
+            currentX += maxWidth + layerSpacing_;
+        }
+
+        // Cleanup segments
+        for (LinearSegment* seg : linearSegments) {
+            delete seg;
+        }
+    }
+
+    std::cerr << "Coordinate assignment complete\n";
 }
 
 void LayeredLayoutProvider::linearSegmentPlacement(std::vector<Layer>& layers) {
@@ -594,6 +678,304 @@ void LayeredLayoutProvider::cleanup(std::vector<LNode*>& nodes, std::vector<LEdg
     for (LEdge* edge : edges) {
         delete edge;
     }
+}
+
+// ============================================================================
+// LinearSegmentsNodePlacer Algorithm (Faithful port from Java)
+// Source: org.eclipse.elk.alg.layered.p4nodes.LinearSegmentsNodePlacer
+// ============================================================================
+
+std::vector<LinearSegment*> LayeredLayoutProvider::sortLinearSegments(std::vector<Layer>& layers) {
+    std::cerr << "\n=== SORT LINEAR SEGMENTS ===\n";
+
+    // Step 1: Set identifier and input/output priority for all nodes (Java lines 217-236)
+    std::vector<LinearSegment*> segmentList;
+    for (Layer& layer : layers) {
+        for (LNode* node : layer.nodes) {
+            node->segmentId = -1;
+            int inprio = INT_MIN, outprio = INT_MIN;
+
+            for (LPort* port : node->ports) {
+                for (LEdge* edge : port->incomingEdges) {
+                    // PRIORITY_STRAIGHTNESS default is 0 (LayeredOptions.java)
+                    // In netlistsvg, edges don't have priority property, so use default
+                    int prio = 0;  // edge->getProperty(PRIORITY_STRAIGHTNESS) would be 0
+                    inprio = std::max(inprio, prio);
+                }
+                for (LEdge* edge : port->outgoingEdges) {
+                    int prio = 0;  // Default PRIORITY_STRAIGHTNESS
+                    outprio = std::max(outprio, prio);
+                }
+            }
+
+            node->inputPriority = inprio;
+            node->outputPriority = outprio;
+        }
+    }
+
+    // Step 2: Create linear segments (Java lines 238-251)
+    int nextLinearSegmentID = 0;
+    for (Layer& layer : layers) {
+        for (LNode* node : layer.nodes) {
+            // Test for node ID; fillSegment calls may have set it
+            if (node->segmentId < 0) {
+                LinearSegment* segment = new LinearSegment();
+                segment->id = nextLinearSegmentID++;
+                fillSegment(node, segment);
+                segmentList.push_back(segment);
+            }
+        }
+    }
+
+    std::cerr << "Created " << segmentList.size() << " linear segments\n";
+
+    // Step 3: Create and initialize segment ordering graph (Java lines 253-259)
+    std::vector<std::vector<LinearSegment*>> outgoingList(segmentList.size());
+    std::vector<int> incomingCountList(segmentList.size(), 0);
+
+    // Step 4: Create edges for segment ordering graph (Java line 262)
+    createDependencyGraphEdges(layers, segmentList, outgoingList, incomingCountList, nextLinearSegmentID);
+
+    // Step 5: Gather sources of segment ordering graph (Java lines 276-282)
+    std::vector<LinearSegment*> noIncoming;
+    for (size_t i = 0; i < segmentList.size(); ++i) {
+        if (incomingCountList[i] == 0) {
+            noIncoming.push_back(segmentList[i]);
+        }
+    }
+
+    // Step 6: Topological sort (Java lines 284-298)
+    int nextRank = 0;
+    std::vector<int> newRanks(segmentList.size());
+
+    while (!noIncoming.empty()) {
+        LinearSegment* segment = noIncoming.front();
+        noIncoming.erase(noIncoming.begin());
+        newRanks[segment->id] = nextRank++;
+
+        while (!outgoingList[segment->id].empty()) {
+            LinearSegment* target = outgoingList[segment->id].front();
+            outgoingList[segment->id].erase(outgoingList[segment->id].begin());
+            incomingCountList[target->id]--;
+
+            if (incomingCountList[target->id] == 0) {
+                noIncoming.push_back(target);
+            }
+        }
+    }
+
+    // Step 7: Apply new ordering (Java lines 300-311)
+    std::vector<LinearSegment*> sortedSegments(segmentList.size());
+    for (size_t i = 0; i < segmentList.size(); ++i) {
+        LinearSegment* ls = segmentList[i];
+        int rank = newRanks[i];
+        sortedSegments[rank] = ls;
+        ls->id = rank;
+        for (LNode* node : ls->nodes) {
+            node->segmentId = rank;
+        }
+    }
+
+    std::cerr << "Sorted " << sortedSegments.size() << " segments\n";
+    return sortedSegments;
+}
+
+bool LayeredLayoutProvider::fillSegment(LNode* node, LinearSegment* segment) {
+    // Faithful port from Java lines 461-505
+    NodeType nodeType = node->type;
+
+    if (node->segmentId >= 0) {
+        // Node already part of another segment
+        return false;
+    } else {
+        // Add node to segment
+        node->segmentId = segment->id;
+        segment->nodes.push_back(node);
+    }
+    segment->nodeType = nodeType;
+
+    // For LONG_EDGE and NORTH_SOUTH_PORT dummies, try to extend segment (Java lines 474-502)
+    if (nodeType == NodeType::LONG_EDGE || nodeType == NodeType::NORTH_SOUTH_PORT) {
+        for (LPort* sourcePort : node->ports) {
+            // Get successor ports (ports connected via outgoing edges)
+            for (LEdge* edge : sourcePort->outgoingEdges) {
+                LPort* targetPort = edge->target;
+                if (!targetPort) continue;
+
+                LNode* targetNode = targetPort->node;
+                if (!targetNode) continue;
+
+                NodeType targetNodeType = targetNode->type;
+
+                // Only extend if nodes are in different layers (Java line 489)
+                if (node->layerIndex != targetNode->layerIndex) {
+                    // Check if target is also LONG_EDGE or NORTH_SOUTH_PORT (Java lines 491-492)
+                    if (targetNodeType == NodeType::LONG_EDGE ||
+                        targetNodeType == NodeType::NORTH_SOUTH_PORT) {
+                        if (fillSegment(targetNode, segment)) {
+                            // Added another node to segment
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+void LayeredLayoutProvider::createDependencyGraphEdges(
+        std::vector<Layer>& layers,
+        std::vector<LinearSegment*>& segmentList,
+        std::vector<std::vector<LinearSegment*>>& outgoingList,
+        std::vector<int>& incomingCountList,
+        int& nextLinearSegmentID) {
+
+    // Faithful port from Java lines 332-449
+    std::cerr << "Creating dependency graph edges\n";
+
+    int layerIndex = 0;
+    for (Layer& layer : layers) {
+        std::vector<LNode*>& nodes = layer.nodes;
+        if (nodes.empty()) {
+            continue;  // Ignore empty layers
+        }
+
+        int indexInLayer = 0;
+        LNode* previousNode = nullptr;
+
+        for (size_t nodeIdx = 0; nodeIdx < nodes.size(); ++nodeIdx) {
+            LNode* currentNode = nodes[nodeIdx];
+            LinearSegment* currentSegment = segmentList[currentNode->segmentId];
+
+            // Check for cycles (Java lines 382-419)
+            if (currentSegment->indexInLastLayer >= 0) {
+                LinearSegment* cycleSegment = nullptr;
+
+                // Look ahead in current layer for segments that would create cycle
+                for (size_t cycleIdx = nodeIdx + 1; cycleIdx < nodes.size(); ++cycleIdx) {
+                    LNode* cycleNode = nodes[cycleIdx];
+                    LinearSegment* testSegment = segmentList[cycleNode->segmentId];
+
+                    if (testSegment->lastLayer == currentSegment->lastLayer &&
+                        testSegment->indexInLastLayer < currentSegment->indexInLastLayer) {
+                        cycleSegment = testSegment;
+                        break;
+                    }
+                }
+
+                // If cycle detected, split current segment (Java lines 400-418)
+                if (cycleSegment != nullptr) {
+                    // Update dependencies before split
+                    if (previousNode != nullptr) {
+                        incomingCountList[currentNode->segmentId]--;
+                        auto& prevOut = outgoingList[previousNode->segmentId];
+                        prevOut.erase(std::remove(prevOut.begin(), prevOut.end(), currentSegment),
+                                     prevOut.end());
+                    }
+
+                    // Split segment at current node
+                    LinearSegment* newSegment = currentSegment->split(currentNode, nextLinearSegmentID++);
+                    segmentList.push_back(newSegment);
+                    outgoingList.push_back(std::vector<LinearSegment*>());
+
+                    if (previousNode != nullptr) {
+                        outgoingList[previousNode->segmentId].push_back(newSegment);
+                        incomingCountList.push_back(1);
+                    } else {
+                        incomingCountList.push_back(0);
+                    }
+
+                    currentSegment = newSegment;
+                }
+            }
+
+            // Add dependency to next node (Java lines 421-429)
+            if (nodeIdx + 1 < nodes.size()) {
+                LNode* nextNode = nodes[nodeIdx + 1];
+                LinearSegment* nextSegment = segmentList[nextNode->segmentId];
+
+                outgoingList[currentNode->segmentId].push_back(nextSegment);
+                incomingCountList[nextNode->segmentId]++;
+            }
+
+            // Update segment's layer information (Java lines 432-433)
+            currentSegment->lastLayer = layerIndex;
+            currentSegment->indexInLastLayer = indexInLayer++;
+
+            previousNode = currentNode;
+        }
+
+        layerIndex++;
+    }
+}
+
+void LayeredLayoutProvider::createUnbalancedPlacement(
+        std::vector<Layer>& layers,
+        const std::vector<LinearSegment*>& linearSegments) {
+
+    // Faithful port from Java lines 516-559
+    std::cerr << "\n=== CREATE UNBALANCED PLACEMENT ===\n";
+
+    // Track how many nodes are placed in each layer (Java line 518)
+    std::vector<int> nodeCount(layers.size(), 0);
+
+    // Track most recent node type and node in each layer (Java lines 521-522)
+    std::vector<NodeType> recentNodeType(layers.size(), NodeType::NORMAL);
+    std::vector<LNode*> recentNode(layers.size(), nullptr);
+
+    // Track layer size (accumulated Y in each layer) - Java uses layer.getSize().y
+    std::vector<double> layerSize(layers.size(), 0.0);
+
+    // Iterate through linear segments in sorted order (Java line 525)
+    for (LinearSegment* segment : linearSegments) {
+        // Determine uppermost placement for this segment (Java line 527)
+        double uppermostPlace = 0.0;
+
+        for (LNode* node : segment->nodes) {
+            int layerIndex = node->layerIndex;
+            if (layerIndex < 0 || layerIndex >= (int)layers.size()) continue;
+
+            nodeCount[layerIndex]++;
+
+            // Calculate spacing from previous node in this layer (Java lines 532-540)
+            // NOTE: In full ELK, this would use spacings.getVerticalSpacing(recentNode, node)
+            // which accounts for node types (NORMAL, LONG_EDGE, etc.) and individual properties
+            // For now, using simplified spacing with nodeSpacing_ as default
+            double spacing = nodeSpacing_;  // Default edge-edge spacing
+            if (nodeCount[layerIndex] > 0 && recentNode[layerIndex] != nullptr) {
+                // TODO: Full implementation would call spacings.getVerticalSpacing()
+                // spacing = spacings.getVerticalSpacing(recentNode[layerIndex], node);
+                spacing = nodeSpacing_;  // Simplified for now
+            }
+
+            // Get current layer size (Java line 542: node.getLayer().getSize().y + spacing)
+            uppermostPlace = std::max(uppermostPlace, layerSize[layerIndex] + spacing);
+        }
+
+        // Apply uppermost placement to all nodes in segment (Java lines 546-557)
+        for (LNode* node : segment->nodes) {
+            int layerIndex = node->layerIndex;
+            if (layerIndex < 0 || layerIndex >= (int)layers.size()) continue;
+
+            // Set node position with margin (Java line 548)
+            // In Java, margin.top is space reserved above node for ports/labels
+            node->position.y = uppermostPlace + node->margin.top;
+
+            // Update layer size (Java lines 551-553)
+            // layer.getSize().y = uppermostPlace + margin.top + node.size + margin.bottom
+            layerSize[layerIndex] = uppermostPlace + node->margin.top + node->size.height + node->margin.bottom;
+
+            recentNodeType[layerIndex] = node->type;
+            recentNode[layerIndex] = node;
+
+            std::cerr << "  Segment " << segment->id << ", node at layer " << layerIndex
+                      << ", Y=" << node->position.y << ", layerSize=" << layerSize[layerIndex] << "\n";
+        }
+    }
+
+    std::cerr << "Unbalanced placement complete\n";
 }
 
 } // namespace layered

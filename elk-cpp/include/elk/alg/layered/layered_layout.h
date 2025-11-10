@@ -61,6 +61,17 @@ private:
     void assignCoordinates(std::vector<Layer>& layers);
     void linearSegmentPlacement(std::vector<Layer>& layers);
 
+    // LinearSegmentsNodePlacer algorithm (faithful port from Java)
+    std::vector<LinearSegment*> sortLinearSegments(std::vector<Layer>& layers);
+    bool fillSegment(LNode* node, LinearSegment* segment);
+    void createDependencyGraphEdges(std::vector<Layer>& layers,
+                                     std::vector<LinearSegment*>& segmentList,
+                                     std::vector<std::vector<LinearSegment*>>& outgoingList,
+                                     std::vector<int>& incomingCountList,
+                                     int& nextLinearSegmentID);
+    void createUnbalancedPlacement(std::vector<Layer>& layers,
+                                    const std::vector<LinearSegment*>& linearSegments);
+
     // Phase 7: Edge routing
     void routeEdges(const std::vector<Layer>& layers, std::vector<LEdge*>& edges);
 

@@ -11,6 +11,7 @@
 #include <list>
 #include <string>
 #include <memory>
+#include <climits>
 
 namespace elk {
 namespace layered {
@@ -139,6 +140,13 @@ public:
     // Layer assignment
     int layerIndex = -1;  // Which layer
     int orderInLayer = -1; // Position within layer
+
+    // Segment assignment (for LinearSegmentsNodePlacer)
+    int segmentId = -1;  // LinearSegment ID this node belongs to
+
+    // Edge priorities (for LinearSegmentsNodePlacer)
+    int inputPriority = INT_MIN;   // Max priority of incoming edges
+    int outputPriority = INT_MIN;  // Max priority of outgoing edges
 
     // Original graph element
     Node* originalNode = nullptr;
@@ -340,6 +348,50 @@ public:
 
     LGraph* getGraph() const { return graph; }
     int getIndex() const { return index; }
+};
+
+// ============================================================================
+// LinearSegment - Group of nodes for LinearSegmentsNodePlacer
+// Port from: org.eclipse.elk.alg.layered.p4nodes.LinearSegmentsNodePlacer.LinearSegment
+// ============================================================================
+
+class LinearSegment {
+public:
+    std::vector<LNode*> nodes;           // Nodes in this segment
+    int id = -1;                          // Segment identifier (also index in array)
+    int indexInLastLayer = -1;            // Index in previous layer (for cycle avoidance)
+    int lastLayer = -1;                   // Last layer where segment was seen
+    double deflection = 0.0;              // Accumulated force (for balancing)
+    int weight = 0;                       // Current weight
+    LinearSegment* refSegment = nullptr;  // Reference segment (for region merging)
+    NodeType nodeType = NodeType::NORMAL; // Type of nodes in segment
+
+    // Get region representative
+    LinearSegment* region() {
+        LinearSegment* seg = this;
+        while (seg->refSegment != nullptr) {
+            seg = seg->refSegment;
+        }
+        return seg;
+    }
+
+    // Split segment before given node, return new segment with remaining nodes
+    LinearSegment* split(LNode* node, int newId) {
+        auto it = std::find(nodes.begin(), nodes.end(), node);
+        if (it == nodes.end()) return nullptr;
+
+        LinearSegment* newSegment = new LinearSegment();
+        newSegment->id = newId;
+
+        // Move nodes from 'node' onward to new segment
+        for (auto moveIt = it; moveIt != nodes.end(); ++moveIt) {
+            (*moveIt)->segmentId = newId;
+            newSegment->nodes.push_back(*moveIt);
+        }
+        nodes.erase(it, nodes.end());
+
+        return newSegment;
+    }
 };
 
 // ============================================================================
