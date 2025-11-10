@@ -45,6 +45,9 @@ private:
     // Phase 2: Cycle breaking - make graph acyclic
     void breakCycles(std::vector<LNode*>& nodes, std::vector<LEdge*>& edges);
 
+    // Phase 2.5: Calculate node margins (for ports extending beyond bounds)
+    void calculateNodeMargins(std::vector<LNode*>& nodes);
+
     // Phase 3: Layer assignment
     void assignLayers(std::vector<LNode*>& nodes, std::vector<Layer>& layers);
     std::vector<LNode*> assignLayersLongestPath(std::vector<LNode*>& nodes);
