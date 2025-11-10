@@ -175,31 +175,16 @@ void LayeredLayoutProvider::breakCycles(std::vector<LNode*>& nodes, std::vector<
         }
     }
 
-    // Now reverse all collected edges
+    // Log reversed edges (but don't physically swap them - just marked as reversed)
     for (LEdge* edge : edgesToReverse) {
-        std::cerr << "  Reversing edge: "
+        std::cerr << "  Marked as back-edge: "
                   << (edge->getSource()->getNode()->originalNode ? edge->getSource()->getNode()->originalNode->id : "?")
                   << " -> "
                   << (edge->getTarget()->getNode()->originalNode ? edge->getTarget()->getNode()->originalNode->id : "?")
                   << "\n";
-
-        LPort* oldSource = edge->source;
-        LPort* oldTarget = edge->target;
-
-        // Remove from old port lists
-        oldSource->getOutgoingEdges().remove(edge);
-        oldTarget->getIncomingEdges().remove(edge);
-
-        // Swap
-        edge->source = oldTarget;
-        edge->target = oldSource;
-
-        // Add to new port lists
-        edge->source->getOutgoingEdges().push_back(edge);
-        edge->target->getIncomingEdges().push_back(edge);
     }
 
-    std::cerr << "Reversed " << edgesToReverse.size() << " edges to break cycles\n";
+    std::cerr << "Marked " << edgesToReverse.size() << " edges as back-edges to break cycles\n";
 }
 
 void LayeredLayoutProvider::assignLayers(std::vector<LNode*>& nodes, std::vector<Layer>& layers) {
