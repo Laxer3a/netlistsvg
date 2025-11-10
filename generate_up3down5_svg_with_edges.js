@@ -103,11 +103,26 @@ cppSvg.push('</g>');
 cppSvg.push('<g id="nodes">');
 for (const [id, node] of cppNodes) {
     const color = id.startsWith('$') ? '#4CAF50' : '#2196F3';
-    cppSvg.push(`<rect x="${node.x}" y="${node.y}" width="${node.width}" height="${node.height}" fill="${color}" stroke="black" stroke-width="1"/>`);
 
-    // Add node label (truncated)
-    let label = id.length > 10 ? id.substring(0, 8) + '..' : id;
-    cppSvg.push(`<text x="${node.x + node.width/2}" y="${node.y + node.height/2 + 3}" font-family="Arial" font-size="7" text-anchor="middle" fill="white">${label}</text>`);
+    // Smart label: show meaningful part
+    let label = id;
+    if (id.startsWith('$')) {
+        // For components like "$add$input.v:17$3", show "add$input"
+        // For "$procdff$40", show "procdff$40"
+        const parts = id.split('$').filter(p => p);
+        if (parts.length > 1 && parts[0].match(/^(add|sub|and|or|xor|mux|join|split|proc|reduce)/)) {
+            label = parts[0] + (parts[1] ? '$' + parts[1].split('.')[0].split(':')[0] : '');
+        } else {
+            label = parts[0];
+        }
+        if (label.length > 12) label = label.substring(0, 10);
+    }
+
+    cppSvg.push(`<g>`);
+    cppSvg.push(`  <title>${id}</title>`);
+    cppSvg.push(`  <rect x="${node.x}" y="${node.y}" width="${node.width}" height="${node.height}" fill="${color}" stroke="black" stroke-width="1"/>`);
+    cppSvg.push(`  <text x="${node.x + node.width/2}" y="${node.y + node.height/2 + 3}" font-family="Arial" font-size="6" text-anchor="middle" fill="white">${label}</text>`);
+    cppSvg.push(`</g>`);
 }
 cppSvg.push('</g>');
 
@@ -198,10 +213,24 @@ netlistsvg.dumpLayout(skinData, netlist, true, (err, prelayoutResult) => {
         jsSvg.push('<g id="nodes">');
         for (const node of g.children) {
             const color = node.id.startsWith('$') ? '#FF9800' : '#E91E63';
-            jsSvg.push(`<rect x="${node.x}" y="${node.y}" width="${node.width}" height="${node.height}" fill="${color}" stroke="black" stroke-width="1"/>`);
 
-            let label = node.id.length > 10 ? node.id.substring(0, 8) + '..' : node.id;
-            jsSvg.push(`<text x="${node.x + node.width/2}" y="${node.y + node.height/2 + 3}" font-family="Arial" font-size="7" text-anchor="middle" fill="white">${label}</text>`);
+            // Smart label: show meaningful part
+            let label = node.id;
+            if (node.id.startsWith('$')) {
+                const parts = node.id.split('$').filter(p => p);
+                if (parts.length > 1 && parts[0].match(/^(add|sub|and|or|xor|mux|join|split|proc|reduce)/)) {
+                    label = parts[0] + (parts[1] ? '$' + parts[1].split('.')[0].split(':')[0] : '');
+                } else {
+                    label = parts[0];
+                }
+                if (label.length > 12) label = label.substring(0, 10);
+            }
+
+            jsSvg.push(`<g>`);
+            jsSvg.push(`  <title>${node.id}</title>`);
+            jsSvg.push(`  <rect x="${node.x}" y="${node.y}" width="${node.width}" height="${node.height}" fill="${color}" stroke="black" stroke-width="1"/>`);
+            jsSvg.push(`  <text x="${node.x + node.width/2}" y="${node.y + node.height/2 + 3}" font-family="Arial" font-size="6" text-anchor="middle" fill="white">${label}</text>`);
+            jsSvg.push(`</g>`);
         }
         jsSvg.push('</g>');
 
