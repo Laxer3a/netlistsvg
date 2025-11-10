@@ -180,13 +180,19 @@ void LayeredLayoutProvider::breakCycles(std::vector<LNode*>& nodes, std::vector<
 }
 
 void LayeredLayoutProvider::assignLayers(std::vector<LNode*>& nodes, std::vector<Layer>& layers) {
-    int maxLayer = assignLayersLongestPath(nodes);
+    std::vector<LNode*> sorted = assignLayersLongestPath(nodes);
+
+    // Calculate max layer from nodes
+    int maxLayer = 0;
+    for (LNode* node : nodes) {
+        maxLayer = std::max(maxLayer, node->layerIndex);
+    }
 
     // Create layer structures
     layers.resize(maxLayer + 1);
 
-    // Assign nodes to layers
-    for (LNode* node : nodes) {
+    // Assign nodes to layers in topological order (to match Java behavior)
+    for (LNode* node : sorted) {
         if (node->layerIndex >= 0 && node->layerIndex <= maxLayer) {
             layers[node->layerIndex].nodes.push_back(node);
         }
@@ -200,7 +206,7 @@ void LayeredLayoutProvider::assignLayers(std::vector<LNode*>& nodes, std::vector
     }
 }
 
-int LayeredLayoutProvider::assignLayersLongestPath(std::vector<LNode*>& nodes) {
+std::vector<LNode*> LayeredLayoutProvider::assignLayersLongestPath(std::vector<LNode*>& nodes) {
     // Topological ordering
     std::vector<LNode*> sorted;
     std::unordered_set<LNode*> visited;
@@ -243,7 +249,7 @@ int LayeredLayoutProvider::assignLayersLongestPath(std::vector<LNode*>& nodes) {
         }
     }
 
-    return maxLayer;
+    return sorted;  // Return sorted vector for layer assignment
 }
 
 void LayeredLayoutProvider::insertDummyNodes(std::vector<LNode*>& nodes, std::vector<LEdge*>& edges,
@@ -341,6 +347,8 @@ void LayeredLayoutProvider::barycenterHeuristic(Layer& layer, bool useIncoming) 
 
     std::vector<NodeWithBarycenter> nodePositions;
 
+    std::cerr << "  Barycenter (layer " << layer.index << ", " << (useIncoming ? "incoming" : "outgoing") << "):\n";
+
     for (LNode* node : layer.nodes) {
         double sum = 0.0;
         int count = 0;
@@ -351,16 +359,27 @@ void LayeredLayoutProvider::barycenterHeuristic(Layer& layer, bool useIncoming) 
             if (other && other->orderInLayer >= 0) {
                 sum += other->orderInLayer;
                 count++;
+                std::cerr << "      " << (node->originalNode ? node->originalNode->id : "dummy")
+                          << " connects to " << (other->originalNode ? other->originalNode->id : "dummy")
+                          << " at position " << other->orderInLayer << "\n";
             }
         }
 
         double barycenter = (count > 0) ? sum / count : node->orderInLayer;
+        std::cerr << "    Node " << (node->originalNode ? node->originalNode->id : "dummy")
+                  << ": sum=" << sum << ", count=" << count << ", barycenter=" << barycenter << "\n";
         nodePositions.push_back({node, barycenter});
     }
 
-    // Sort by barycenter
-    std::sort(nodePositions.begin(), nodePositions.end(),
-              [](const auto& a, const auto& b) { return a.barycenter < b.barycenter; });
+    // Sort by barycenter (use stable_sort to match Java Collections.sort behavior)
+    std::stable_sort(nodePositions.begin(), nodePositions.end(),
+                     [](const auto& a, const auto& b) { return a.barycenter < b.barycenter; });
+
+    std::cerr << "    After sort: ";
+    for (const auto& np : nodePositions) {
+        std::cerr << (np.node->originalNode ? np.node->originalNode->id : "dummy") << "(" << np.barycenter << ") ";
+    }
+    std::cerr << "\n";
 
     // Update layer and order
     layer.nodes.clear();
