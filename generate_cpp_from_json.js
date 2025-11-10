@@ -43,27 +43,37 @@ graph.edges.forEach((edge, i) => {
     console.log(`    auto e${i} = root->addEdge("${edge.id}");`);
 
     edge.sources.forEach(srcPort => {
-        const srcNodeId = srcPort.split('.')[0];
-        const safeNodeId = 'node_' + srcNodeId.replace(/\$/g, '_D_').replace(/:/g, '_C_').replace(/\./g, '_P_').replace(/,/g, '_');
-        const srcNode = graph.children.find(n => n.id === srcNodeId);
-        if (srcNode && srcNode.ports) {
+        // Find which node this port belongs to (node IDs can contain dots!)
+        const srcNode = graph.children.find(n => n.ports && n.ports.some(p => p.id === srcPort));
+        if (!srcNode) {
+            console.error(`ERROR: Source port ${srcPort} not found in any node for edge ${edge.id}`);
+        } else {
+            const srcNodeId = srcNode.id;
+            const safeNodeId = 'node_' + srcNodeId.replace(/\$/g, '_D_').replace(/:/g, '_C_').replace(/\./g, '_P_').replace(/,/g, '_');
             const portIdx = srcNode.ports.findIndex(p => p.id === srcPort);
             if (portIdx >= 0) {
                 console.log(`    e${i}->sourcePorts.push_back(${safeNodeId}_p${portIdx});`);
                 console.log(`    ${safeNodeId}_p${portIdx}->outgoingEdges.push_back(e${i});`);
+            } else {
+                console.error(`ERROR: Source port ${srcPort} not found in node ${srcNodeId} for edge ${edge.id}`);
             }
         }
     });
 
     edge.targets.forEach(tgtPort => {
-        const tgtNodeId = tgtPort.split('.')[0];
-        const safeNodeId = 'node_' + tgtNodeId.replace(/\$/g, '_D_').replace(/:/g, '_C_').replace(/\./g, '_P_').replace(/,/g, '_');
-        const tgtNode = graph.children.find(n => n.id === tgtNodeId);
-        if (tgtNode && tgtNode.ports) {
+        // Find which node this port belongs to (node IDs can contain dots!)
+        const tgtNode = graph.children.find(n => n.ports && n.ports.some(p => p.id === tgtPort));
+        if (!tgtNode) {
+            console.error(`ERROR: Target port ${tgtPort} not found in any node for edge ${edge.id}`);
+        } else {
+            const tgtNodeId = tgtNode.id;
+            const safeNodeId = 'node_' + tgtNodeId.replace(/\$/g, '_D_').replace(/:/g, '_C_').replace(/\./g, '_P_').replace(/,/g, '_');
             const portIdx = tgtNode.ports.findIndex(p => p.id === tgtPort);
             if (portIdx >= 0) {
                 console.log(`    e${i}->targetPorts.push_back(${safeNodeId}_p${portIdx});`);
                 console.log(`    ${safeNodeId}_p${portIdx}->incomingEdges.push_back(e${i});`);
+            } else {
+                console.error(`ERROR: Target port ${tgtPort} not found in node ${tgtNodeId} for edge ${edge.id}`);
             }
         }
     });
