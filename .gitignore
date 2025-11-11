@@ -9,3 +9,4 @@ examples/**/*.png
 package-lock.json
 built/*.test.js
 elk-cpp/build/
+elk-cpp/up3down5_test
