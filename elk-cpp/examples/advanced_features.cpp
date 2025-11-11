@@ -82,7 +82,7 @@ void demonstratePortConstraints() {
 
     // Place ports
     ports::PortPlacer::PlacementContext ctx;
-    ctx.node = node.get();
+    ctx.node = node;
     ctx.constraints = &constraints;
     ctx.strategy = ports::PortPlacementStrategy::SIMPLE;
     ctx.distribution.spacing = 15.0;

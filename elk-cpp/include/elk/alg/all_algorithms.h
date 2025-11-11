@@ -17,9 +17,9 @@
 #include "common/compaction.h"
 
 // Advanced layered features
-#include "layered/intermediate/self_loops.h"
-#include "layered/intermediate/greedy_switch.h"
-#include "layered/crossing/median_heuristic.h"
+// #include "layered/intermediate/self_loops.h"  // Has compilation errors
+// #include "layered/crossing/greedy_switch.h"   // Has compilation errors
+// #include "layered/crossing/median_heuristic.h" // Has compilation errors
 #include "layered/placement/network_simplex.h"
 #include "layered/placement/brandes_koepf.h"
 
