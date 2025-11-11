@@ -5,6 +5,7 @@
 #include "elk/alg/layered/lgraph.h"
 #include <algorithm>
 #include <stdexcept>
+#include <iostream>
 
 namespace elk {
 namespace layered {
@@ -197,10 +198,15 @@ Point LPort::getAbsoluteAnchor() const {
     if (node == nullptr) {
         return anchor;
     }
-    return Point{
+    Point result{
         node->getPosition().x + position.x + anchor.x,
         node->getPosition().y + position.y + anchor.y
     };
+    std::cerr << "      LPort::getAbsoluteAnchor: node=(" << node->getPosition().x << "," << node->getPosition().y
+              << ") port=(" << position.x << "," << position.y
+              << ") anchor=(" << anchor.x << "," << anchor.y
+              << ") result=(" << result.x << "," << result.y << ")\n";
+    return result;
 }
 
 int LPort::getIndex() const {

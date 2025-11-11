@@ -92,6 +92,7 @@ void LayeredLayoutProvider::importGraph(Node* graph, std::vector<LNode*>& nodes,
             lport->size = port->size;
             lport->position = port->position;
             lport->node = lnode;
+            std::cerr << "    Port " << port->id << " side=" << (int)port->side << " -> LPort side=" << (int)lport->side << "\n";
 
             // Copy port labels
             for (const auto& label : port->labels) {
@@ -151,6 +152,11 @@ void LayeredLayoutProvider::importGraph(Node* graph, std::vector<LNode*>& nodes,
             // No edges connected
             lport->portType = PortType::UNDEFINED;
         }
+        std::cerr << "  Port " << (lport->originalPort ? lport->originalPort->id : "?")
+                  << " type=" << (int)lport->portType
+                  << " side=" << (int)lport->side
+                  << " incoming=" << lport->incomingEdges.size()
+                  << " outgoing=" << lport->outgoingEdges.size() << "\n";
     }
 
     // Debug: Check edge connectivity for a few nodes
@@ -950,12 +956,23 @@ void LayeredLayoutProvider::applyLayout(const std::vector<LNode*>& nodes, const 
                 std::vector<Point> bendPoints = ledge->bendPoints;
                 std::cerr << "    Edge " << ledge->originalEdge->id << " has " << bendPoints.size() << " bend points\n";
 
-                // Add source port absolute anchor (Java lines 246-260)
-                Point sourcePoint = srcPort->getAbsoluteAnchor();
+                // Add source port absolute anchor using ORIGINAL port (not layered port!)
+                // The LPort has coordinates in layered graph space, but we need original graph space
+                Port* origSrc = srcPort->originalPort;
+                Point sourcePoint{
+                    origSrc->parent->position.x + origSrc->position.x,
+                    origSrc->parent->position.y + origSrc->position.y
+                };
+                std::cerr << "    Source port absolute position: (" << sourcePoint.x << ", " << sourcePoint.y << ")\n";
                 bendPoints.insert(bendPoints.begin(), sourcePoint);
 
-                // Add target port absolute anchor (Java lines 263-267)
-                Point targetPoint = tgtPort->getAbsoluteAnchor();
+                // Add target port absolute anchor using ORIGINAL port
+                Port* origTgt = tgtPort->originalPort;
+                Point targetPoint{
+                    origTgt->parent->position.x + origTgt->position.x,
+                    origTgt->parent->position.y + origTgt->position.y
+                };
+                std::cerr << "    Target port absolute position: (" << targetPoint.x << ", " << targetPoint.y << ")\n";
                 bendPoints.push_back(targetPoint);
 
                 // Create edge section with bendPoints (Java lines 273-276)

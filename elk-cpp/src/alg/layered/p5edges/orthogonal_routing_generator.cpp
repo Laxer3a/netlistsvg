@@ -111,8 +111,11 @@ int OrthogonalRoutingGenerator::routeEdges(LGraph* layeredGraph,
     int bendPointsCalculated = 0;
     for (HyperEdgeSegment* node : edgeSegments) {
         // Edges that are just straight lines don't take up a slot and don't need bend points
-        if (std::abs(node->getStartCoordinate() - node->getEndCoordinate()) < TOLERANCE) {
-            std::cerr << "  Skipping segment (straight line)\n";
+        double startCoord = node->getStartCoordinate();
+        double endCoord = node->getEndCoordinate();
+        std::cerr << "  Segment: start=" << startCoord << " end=" << endCoord << " diff=" << std::abs(startCoord - endCoord) << "\n";
+        if (std::abs(startCoord - endCoord) < TOLERANCE) {
+            std::cerr << "    -> Skipping segment (straight line)\n";
             continue;
         }
 
