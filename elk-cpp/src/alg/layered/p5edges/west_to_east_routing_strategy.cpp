@@ -47,7 +47,10 @@ void WestToEastRoutingStrategy::calculateBendPoints(HyperEdgeSegment* segment, d
         std::cerr << "      Port has " << port->getOutgoingEdges().size() << " outgoing edges\n";
         for (LEdge* edge : port->getOutgoingEdges()) {
             std::string edgeId = edge->originalEdge ? edge->originalEdge->id : "unknown";
-            std::cerr << "        Processing edge " << edgeId << " (LEdge=" << edge << ", bendPoints=" << edge->getBendPoints().size() << ")\n";
+            int srcLayer = port->getNode()->layerIndex;
+            int tgtLayer = edge->getTarget()->getNode()->layerIndex;
+            std::cerr << "        Processing edge " << edgeId << " (LEdge=" << edge << ", bendPoints=" << edge->getBendPoints().size()
+                      << ", layer " << srcLayer << "→" << tgtLayer << ")\n";
             if (!edge->isSelfLoop()) {
                 LPort* target = edge->getTarget();
                 double targetY = target->getAbsoluteAnchor().y;

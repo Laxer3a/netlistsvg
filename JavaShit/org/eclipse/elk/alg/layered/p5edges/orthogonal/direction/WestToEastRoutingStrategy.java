@@ -48,9 +48,11 @@ class WestToEastRoutingStrategy extends BaseRoutingDirectionStrategy {
 
         for (LPort port : segment.getPorts()) {
             double sourceY = port.getAbsoluteAnchor().y;
+            System.err.println("      Port: " + port + " node=" + port.getNode() + " side=" + port.getSide() + " outgoingEdges=" + port.getOutgoingEdges().size());
 
             for (LEdge edge : port.getOutgoingEdges()) {
                 if (!edge.isSelfLoop()) {
+                    System.err.println("        Processing edge, bendPoints=" + edge.getBendPoints().size());
                     LPort target = edge.getTarget();
                     double targetY = target.getAbsoluteAnchor().y;
                     

@@ -161,8 +161,10 @@ public final class OrthogonalRoutingGenerator {
 
         // create hyperedge segments for eastern output ports of the left layer and for western output ports of the
         // right layer
+        System.err.println("  Creating segments from SOURCE layer (side=" + routingStrategy.getSourcePortSide() + ")");
         createHyperEdgeSegments(
                 sourceLayerNodes, routingStrategy.getSourcePortSide(), edgeSegments, portToEdgeSegmentMap);
+        System.err.println("  Creating segments from TARGET layer (side=" + routingStrategy.getTargetPortSide() + ")");
         createHyperEdgeSegments(
                 targetLayerNodes, routingStrategy.getTargetPortSide(), edgeSegments, portToEdgeSegmentMap);
 
@@ -296,11 +298,15 @@ public final class OrthogonalRoutingGenerator {
         if (nodes != null) {
             for (LNode node : nodes) {
                 for (LPort port : node.getPorts(PortType.OUTPUT, portSide)) {
+                    System.err.println("    Found OUTPUT port on side " + portSide + ": node=" + node + " port=" + port);
                     HyperEdgeSegment hyperEdge = portToHyperEdgeSegmentMap.get(port);
                     if (hyperEdge == null) {
+                        System.err.println("      -> Creating new segment");
                         hyperEdge = new HyperEdgeSegment(routingStrategy);
                         hyperEdges.add(hyperEdge);
                         hyperEdge.addPortPositions(port, portToHyperEdgeSegmentMap);
+                    } else {
+                        System.err.println("      -> Port already in segment, skipping");
                     }
                 }
             }
