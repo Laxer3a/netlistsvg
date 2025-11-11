@@ -187,7 +187,7 @@ void OrthogonalRoutingGenerator::createHyperEdgeSegments(
     if (nodes != nullptr) {
         std::cerr << "createHyperEdgeSegments: " << nodes->size() << " nodes, looking for OUTPUT ports on side " << (int)portSide << "\n";
         for (LNode* node : *nodes) {
-            std::cerr << "  Node with " << node->getPorts().size() << " ports\n";
+            std::cerr << "  Node type=" << (int)node->type << " with " << node->getPorts().size() << " ports\n";
             for (LPort* port : node->getPorts()) {
                 std::cerr << "    Port: side=" << (int)port->side << " type=" << (int)port->portType
                           << " incoming=" << port->incomingEdges.size()
