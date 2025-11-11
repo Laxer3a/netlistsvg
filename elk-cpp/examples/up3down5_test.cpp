@@ -8,6 +8,7 @@
 #include <fstream>
 #include <memory>
 #include <map>
+#include <set>
 
 using namespace elk;
 
@@ -49,14 +50,28 @@ void generateSVG(const std::string& filename, Node* root, const std::string& tit
     }
     svg << "  </g>\n";
 
-    // Draw junction points
+    // Draw junction points (dots where edges merge/split, NOT at simple turns)
     svg << "  <g id=\"junction-points\" fill=\"#666\">\n";
+
+    // First pass: count how many times each coordinate appears
+    std::map<std::pair<double, double>, int> pointCount;
     for (const auto& edge : root->edges) {
         if (!edge->sections.empty()) {
             const auto& section = edge->sections[0];
             for (const auto& bendPoint : section.bendPoints) {
-                svg << "    <circle cx=\"" << bendPoint.x << "\" cy=\"" << bendPoint.y << "\" r=\"2\"/>\n";
+                auto key = std::make_pair(bendPoint.x, bendPoint.y);
+                pointCount[key]++;
             }
+        }
+    }
+
+    // Second pass: only draw circles where 2+ edges meet (merge/split points)
+    std::set<std::pair<double, double>> drawn;
+    for (const auto& entry : pointCount) {
+        if (entry.second >= 2 && drawn.find(entry.first) == drawn.end()) {
+            svg << "    <circle cx=\"" << entry.first.first << "\" cy=\"" << entry.first.second
+                << "\" r=\"2\"/>\n";
+            drawn.insert(entry.first);
         }
     }
     svg << "  </g>\n";
