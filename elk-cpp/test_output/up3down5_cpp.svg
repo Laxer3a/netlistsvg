@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="591" height="750">
+<svg xmlns="http://www.w3.org/2000/svg" width="601" height="750">
   <title>up3down5 - C++ ELK Layout</title>
   <defs>
     <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
@@ -8,104 +8,105 @@
   </defs>
   <rect width="100%" height="100%" fill="white"/>
   <g id="edges" stroke="#666" stroke-width="1.5" fill="none" marker-end="url(#arrow)">
-    <path d="M 127 292 L 146 292 L 146 268 L 163 268"/>
-    <path d="M 127 292 L 344 237"/>
-    <path d="M 127 292 L 146 292 L 146 691 L 163 691"/>
-    <path d="M 127 292 L 537 112"/>
-    <path d="M 123 237 L 136 237 L 136 283 L 163 283"/>
-    <path d="M 42 57 L 404 88"/>
-    <path d="M 42 57 L 161 459"/>
-    <path d="M 235 273 L 404 103"/>
-    <path d="M 42 222 L 404 691"/>
-    <path d="M 42 222 L 161 439"/>
-    <path d="M 235 696 L 404 706"/>
+    <path d="M 127 292 L 156 292 L 156 268 L 168 268"/>
+    <path d="M 127 292 L 335 227 L 335 237 L 354 237"/>
+    <path d="M 127 292 L 156 292 L 156 691 L 168 691"/>
+    <path d="M 127 292 L 522 155 L 522 112 L 547 112"/>
+    <path d="M 123 237 L 136 237 L 136 283 L 168 283"/>
+    <path d="M 42 57 L 389 83 L 389 88 L 414 88"/>
+    <path d="M 42 57 L 146 361 L 146 459 L 166 459"/>
+    <path d="M 240 273 L 389 119 L 389 103 L 414 103"/>
+    <path d="M 42 222 L 389 761 L 389 691 L 414 691"/>
+    <path d="M 42 222 L 136 397 L 136 439 L 166 439"/>
+    <path d="M 240 696 L 399 686 L 399 706 L 414 706"/>
     <path d="M 42 112 L 72 112 L 72 312 L 91 312"/>
-    <path d="M 42 112 L 471 77"/>
-    <path d="M 42 112 L 471 296"/>
-    <path d="M 42 112 L 471 221"/>
-    <path d="M 91 292 L 379 338 L 379 247 L 369.5 247"/>
-    <path d="M 369.5 247 L 379 247 L 379 232 L 406 232"/>
-    <path d="M 434 95.5 L 447 95.5 L 447 57 L 471 57"/>
-    <path d="M 434 698.5 L 447 698.5 L 447 276 L 471 276"/>
-    <path d="M 437 239.5 L 447 239.5 L 447 201 L 471 201"/>
-    <path d="M 311 489 L 320 489 L 320 257 L 344 257"/>
-    <path d="M 311 394 L 330 394 L 330 265 L 357 265"/>
-    <path d="M 166 449 L 211 449 L 211 379 L 233 379"/>
-    <path d="M 166 449 L 211 449 L 211 439 L 233 439"/>
-    <path d="M 166 449 L 211 449 L 211 499 L 233 499"/>
-    <path d="M 192 384 L 221 384 L 221 394 L 233 394"/>
-    <path d="M 192 514 L 201 514 L 201 454 L 233 454"/>
-    <path d="M 192 569 L 211 569 L 211 514 L 233 514"/>
-    <path d="M 123 696 L 136 696 L 136 706 L 163 706"/>
-    <path d="M 503 57 L 537 57"/>
-    <path d="M 503 276 L 512 276 L 512 222 L 537 222"/>
-    <path d="M 503 201 L 512 201 L 512 167 L 537 167"/>
-    <path d="M 235 293 L 286 293 L 286 479 L 306 479"/>
-    <path d="M 235 716 L 286 716 L 286 499 L 306 499"/>
-    <path d="M 42 167 L 306 519"/>
-    <path d="M 256 386.5 L 266 386.5 L 266 384 L 306 384"/>
-    <path d="M 256 446.5 L 266 446.5 L 266 404 L 306 404"/>
-    <path d="M 256 506.5 L 276 506.5 L 276 424 L 306 424"/>
-    <path d="M 187 275.5 L 201 275.5 L 201 283 L 231 283"/>
-    <path d="M 186 698.5 L 201 698.5 L 201 706 L 231 706"/>
+    <path d="M 42 112 L 467 47 L 467 77 L 481 77"/>
+    <path d="M 42 112 L 467 650 L 467 296 L 481 296"/>
+    <path d="M 42 112 L 467 191 L 467 221 L 481 221"/>
+    <path d="M 91 292 L 325 338 L 325 247 L 389 338 L 389 247 L 379.5 247"/>
+    <path d="M 379.5 247 L 325 247 L 325 232 L 389 247 L 389 232 L 416 232"/>
+    <path d="M 444 95.5 L 457 95.5 L 457 57 L 481 57"/>
+    <path d="M 444 698.5 L 457 698.5 L 457 276 L 481 276"/>
+    <path d="M 447 239.5 L 457 239.5 L 457 201 L 481 201"/>
+    <path d="M 316 489 L 335 489 L 335 257 L 354 257"/>
+    <path d="M 316 394 L 345 394 L 345 265 L 367 265"/>
+    <path d="M 171 449 L 216 449 L 216 379 L 238 379"/>
+    <path d="M 171 449 L 216 449 L 216 439 L 238 439"/>
+    <path d="M 171 449 L 216 449 L 216 499 L 238 499"/>
+    <path d="M 197 384 L 226 384 L 226 394 L 238 394"/>
+    <path d="M 197 514 L 206 514 L 206 454 L 238 454"/>
+    <path d="M 197 569 L 216 569 L 216 514 L 238 514"/>
+    <path d="M 123 696 L 136 696 L 136 706 L 168 706"/>
+    <path d="M 513 57 L 547 57"/>
+    <path d="M 513 276 L 522 276 L 522 222 L 547 222"/>
+    <path d="M 513 201 L 522 201 L 522 167 L 547 167"/>
+    <path d="M 240 293 L 291 293 L 291 479 L 311 479"/>
+    <path d="M 240 716 L 291 716 L 291 499 L 311 499"/>
+    <path d="M 42 167 L 301 614 L 301 519 L 311 519"/>
+    <path d="M 261 386.5 L 271 386.5 L 271 384 L 311 384"/>
+    <path d="M 261 446.5 L 271 446.5 L 271 404 L 311 404"/>
+    <path d="M 261 506.5 L 281 506.5 L 281 424 L 311 424"/>
+    <path d="M 192 275.5 L 206 275.5 L 206 283 L 236 283"/>
+    <path d="M 191 698.5 L 206 698.5 L 206 706 L 236 706"/>
   </g>
   <g id="junction-points" fill="#666">
-    <circle cx="146" cy="292" r="2"/>
-    <circle cx="211" cy="449" r="2"/>
-    <circle cx="379" cy="247" r="2"/>
+    <circle cx="156" cy="292" r="2"/>
+    <circle cx="216" cy="449" r="2"/>
+    <circle cx="325" cy="247" r="2"/>
+    <circle cx="389" cy="247" r="2"/>
   </g>
   <g id="nodes">
     <g id="$add$input.v:17$3">
-      <rect x="161" y="263" width="25" height="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="173.5" y="279.5" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$add$input.v:17$3</text>
+      <rect x="166" y="263" width="25" height="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="178.5" y="279.5" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$add$input.v:17$3</text>
     </g>
     <g id="$and$input.v:28$5">
-      <rect x="404" y="83" width="30" height="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="419" y="99.5" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$and$input.v:28$5</text>
+      <rect x="414" y="83" width="30" height="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="429" y="99.5" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$and$input.v:28$5</text>
     </g>
     <g id="$and$input.v:29$6">
-      <rect x="404" y="686" width="30" height="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="419" y="702.5" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$and$input.v:29$6</text>
+      <rect x="414" y="686" width="30" height="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="429" y="702.5" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$and$input.v:29$6</text>
     </g>
     <g id="$procdff$40">
       <rect x="92" y="282" width="34" height="44" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
       <text x="109" y="308" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$procdff$40</text>
     </g>
     <g id="$procdff$41">
-      <rect x="472" y="47" width="30" height="40" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="487" y="71" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$procdff$41</text>
+      <rect x="482" y="47" width="30" height="40" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="497" y="71" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$procdff$41</text>
     </g>
     <g id="$procdff$42">
-      <rect x="472" y="266" width="30" height="40" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="487" y="290" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$procdff$42</text>
+      <rect x="482" y="266" width="30" height="40" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="497" y="290" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$procdff$42</text>
     </g>
     <g id="$procdff$43">
-      <rect x="472" y="191" width="30" height="40" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="487" y="215" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$procdff$43</text>
+      <rect x="482" y="191" width="30" height="40" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="497" y="215" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$procdff$43</text>
     </g>
     <g id="$procmux$36">
-      <rect x="345" y="227" width="24" height="40" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="357" y="251" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$procmux$36</text>
+      <rect x="355" y="227" width="24" height="40" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="367" y="251" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$procmux$36</text>
     </g>
     <g id="$procmux$37_CMP0">
-      <rect x="231" y="374" width="25" height="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="243.5" y="390.5" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$procmux$37_CMP0</text>
+      <rect x="236" y="374" width="25" height="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="248.5" y="390.5" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$procmux$37_CMP0</text>
     </g>
     <g id="$procmux$38_CMP0">
-      <rect x="231" y="434" width="25" height="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="243.5" y="450.5" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$procmux$38_CMP0</text>
+      <rect x="236" y="434" width="25" height="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="248.5" y="450.5" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$procmux$38_CMP0</text>
     </g>
     <g id="$procmux$39_CMP0">
-      <rect x="231" y="494" width="25" height="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="243.5" y="510.5" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$procmux$39_CMP0</text>
+      <rect x="236" y="494" width="25" height="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="248.5" y="510.5" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$procmux$39_CMP0</text>
     </g>
     <g id="$reduce_xor$input.v:27$4">
-      <rect x="404" y="227" width="33" height="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="420.5" y="243.5" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$reduce_xor$input.v:27$4</text>
+      <rect x="414" y="227" width="33" height="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="430.5" y="243.5" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$reduce_xor$input.v:27$4</text>
     </g>
     <g id="$sub$input.v:16$2">
-      <rect x="161" y="686" width="25" height="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="173.5" y="702.5" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$sub$input.v:16$2</text>
+      <rect x="166" y="686" width="25" height="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="178.5" y="702.5" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$sub$input.v:16$2</text>
     </g>
     <g id="clock">
       <rect x="12" y="102" width="30" height="20" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
@@ -124,60 +125,60 @@
       <text x="27" y="226" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">down</text>
     </g>
     <g id="carry_out">
-      <rect x="537" y="47" width="30" height="20" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="552" y="61" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">carry_out</text>
+      <rect x="547" y="47" width="30" height="20" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="562" y="61" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">carry_out</text>
     </g>
     <g id="borrow_out">
-      <rect x="537" y="212" width="30" height="20" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="552" y="226" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">borrow_out</text>
+      <rect x="547" y="212" width="30" height="20" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="562" y="226" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">borrow_out</text>
     </g>
     <g id="count_out">
-      <rect x="537" y="102" width="30" height="20" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="552" y="116" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">count_out</text>
+      <rect x="547" y="102" width="30" height="20" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="562" y="116" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">count_out</text>
     </g>
     <g id="parity_out">
-      <rect x="537" y="157" width="30" height="20" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="552" y="171" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">parity_out</text>
+      <rect x="547" y="157" width="30" height="20" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="562" y="171" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">parity_out</text>
     </g>
     <g id="11">
       <rect x="92" y="227" width="30" height="20" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
       <text x="107" y="241" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">11</text>
     </g>
     <g id="10">
-      <rect x="161" y="374" width="30" height="20" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="176" y="388" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">10</text>
+      <rect x="166" y="374" width="30" height="20" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="181" y="388" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">10</text>
     </g>
     <g id="01">
-      <rect x="161" y="504" width="30" height="20" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="176" y="518" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">01</text>
+      <rect x="166" y="504" width="30" height="20" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="181" y="518" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">01</text>
     </g>
     <g id="00">
-      <rect x="161" y="559" width="30" height="20" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="176" y="573" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">00</text>
+      <rect x="166" y="559" width="30" height="20" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="181" y="573" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">00</text>
     </g>
     <g id="101">
       <rect x="92" y="686" width="30" height="20" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
       <text x="107" y="700" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">101</text>
     </g>
     <g id="$join$,26,27,28,29,30,31,32,33,34,49,50,51,52,53,54,55,56,57,3,4,5,6,7,8,9,10,11,">
-      <rect x="306" y="469" width="4" height="60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="308" y="503" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$join$,26,27,28,29,30,31,32,33,34,49,50,51,52,53,54,55,56,57,3,4,5,6,7,8,9,10,11,</text>
+      <rect x="311" y="469" width="4" height="60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="313" y="503" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$join$,26,27,28,29,30,31,32,33,34,49,50,51,52,53,54,55,56,57,3,4,5,6,7,8,9,10,11,</text>
     </g>
     <g id="$join$,58,59,60,">
-      <rect x="306" y="374" width="4" height="60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="308" y="408" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$join$,58,59,60,</text>
+      <rect x="311" y="374" width="4" height="60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="313" y="408" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$join$,58,59,60,</text>
     </g>
     <g id="$join$,13,12,">
-      <rect x="161" y="429" width="4" height="40" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="163" y="453" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$join$,13,12,</text>
+      <rect x="166" y="429" width="4" height="40" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="168" y="453" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$join$,13,12,</text>
     </g>
     <g id="$split$,26,27,28,29,30,31,32,33,34,35,">
-      <rect x="231" y="263" width="5" height="40" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="233.5" y="287" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$split$,26,27,28,29,30,31,32,33,34,35,</text>
+      <rect x="236" y="263" width="5" height="40" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="238.5" y="287" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$split$,26,27,28,29,30,31,32,33,34,35,</text>
     </g>
     <g id="$split$,49,50,51,52,53,54,55,56,57,37,">
-      <rect x="231" y="686" width="5" height="40" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
-      <text x="233.5" y="710" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$split$,49,50,51,52,53,54,55,56,57,37,</text>
+      <rect x="236" y="686" width="5" height="40" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="2"/>
+      <text x="238.5" y="710" text-anchor="middle" font-family="monospace" font-size="8" fill="#000">$split$,49,50,51,52,53,54,55,56,57,37,</text>
     </g>
   </g>
   <text x="10" y="15" font-family="Arial" font-size="14" font-weight="bold" fill="#000">up3down5 - C++ ELK Layout</text>

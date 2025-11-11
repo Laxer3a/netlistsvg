@@ -630,6 +630,7 @@ void LayeredLayoutProvider::insertDummyNodes(std::vector<LNode*>& nodes, std::ve
             LPort* dummyIn = new LPort();
             dummyIn->node = dummy;
             dummyIn->side = PortSide::WEST;
+            dummyIn->portType = PortType::INPUT;  // Receives incoming edges
             // Link dummy port back to original source port for rendering
             if (prevPort && prevPort->originalPort) {
                 dummyIn->originalPort = prevPort->originalPort;
@@ -639,6 +640,7 @@ void LayeredLayoutProvider::insertDummyNodes(std::vector<LNode*>& nodes, std::ve
             LPort* dummyOut = new LPort();
             dummyOut->node = dummy;
             dummyOut->side = PortSide::EAST;
+            dummyOut->portType = PortType::OUTPUT;  // Sends outgoing edges
             // Link dummy port back to original source port for rendering
             if (prevPort && prevPort->originalPort) {
                 dummyOut->originalPort = prevPort->originalPort;
