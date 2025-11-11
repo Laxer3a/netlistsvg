@@ -34,6 +34,10 @@ void LayeredLayoutProvider::layout(Node* graph, ProgressCallback progress) {
     if (progress) progress("Assigning layers", 0.30);
     assignLayers(nodes, layers);
 
+    // Phase 3.5: Calculate node margins (for ports extending beyond bounds)
+    if (progress) progress("Calculating margins", 0.35);
+    calculateNodeMargins(nodes);
+
     // Phase 4: Insert dummy nodes
     if (progress) progress("Processing long edges", 0.45);
     insertDummyNodes(nodes, edges, layers);
@@ -88,6 +92,16 @@ void LayeredLayoutProvider::importGraph(Node* graph, std::vector<LNode*>& nodes,
             lport->size = port->size;
             lport->position = port->position;
             lport->node = lnode;
+
+            // Copy port labels
+            for (const auto& label : port->labels) {
+                LLabel llabel;
+                llabel.text = label.text;
+                llabel.position = label.position;
+                llabel.size = label.size;
+                lport->labels.push_back(llabel);
+            }
+
             lnode->ports.push_back(lport);
             portMap[port.get()] = lport;
         }
@@ -333,6 +347,91 @@ void LayeredLayoutProvider::breakCycles(std::vector<LNode*>& nodes, std::vector<
     }
 
     std::cerr << "Reversed " << reversedCount << " edges to break cycles\n";
+}
+
+void LayeredLayoutProvider::calculateNodeMargins(std::vector<LNode*>& nodes) {
+    std::cerr << "\n=== CALCULATE NODE MARGINS ===\n";
+
+    int nodesWithMargins = 0;
+    double maxMarginLeft = 0.0, maxMarginRight = 0.0;
+
+    // Calculate margins based on port positions extending beyond node bounds
+    // Similar to Java's InnermostNodeMarginCalculator
+    for (LNode* node : nodes) {
+        if (node->type != NodeType::NORMAL) {
+            continue; // Only process normal nodes (skip dummies)
+        }
+
+        double leftExtent = 0.0;
+        double rightExtent = 0.0;
+        double topExtent = 0.0;
+        double bottomExtent = 0.0;
+
+        // Check all ports for extents beyond node bounds (including port labels)
+        for (LPort* port : node->getPorts()) {
+            // Port position is relative to node
+            double portLeft = port->position.x;
+            double portRight = port->position.x + port->size.width;
+            double portTop = port->position.y;
+            double portBottom = port->position.y + port->size.height;
+
+            // Calculate how far port itself extends beyond node bounds
+            if (portLeft < 0) {
+                leftExtent = std::max(leftExtent, -portLeft);
+            }
+            if (portRight > node->size.width) {
+                rightExtent = std::max(rightExtent, portRight - node->size.width);
+            }
+            if (portTop < 0) {
+                topExtent = std::max(topExtent, -portTop);
+            }
+            if (portBottom > node->size.height) {
+                bottomExtent = std::max(bottomExtent, portBottom - node->size.height);
+            }
+
+            // Also check port labels (they can extend beyond the port)
+            for (const auto& label : port->labels) {
+                double labelLeft = port->position.x + label.position.x;
+                double labelRight = labelLeft + label.size.width;
+                double labelTop = port->position.y + label.position.y;
+                double labelBottom = labelTop + label.size.height;
+
+                if (labelLeft < 0) {
+                    leftExtent = std::max(leftExtent, -labelLeft);
+                }
+                if (labelRight > node->size.width) {
+                    rightExtent = std::max(rightExtent, labelRight - node->size.width);
+                }
+                if (labelTop < 0) {
+                    topExtent = std::max(topExtent, -labelTop);
+                }
+                if (labelBottom > node->size.height) {
+                    bottomExtent = std::max(bottomExtent, labelBottom - node->size.height);
+                }
+            }
+        }
+
+        // Set margins if ports extend beyond bounds
+        if (leftExtent > 0 || rightExtent > 0 || topExtent > 0 || bottomExtent > 0) {
+            node->margin.left = leftExtent;
+            node->margin.right = rightExtent;
+            node->margin.top = topExtent;
+            node->margin.bottom = bottomExtent;
+            nodesWithMargins++;
+
+            maxMarginLeft = std::max(maxMarginLeft, leftExtent);
+            maxMarginRight = std::max(maxMarginRight, rightExtent);
+
+            if (leftExtent > 10 || rightExtent > 10) {
+                std::cerr << "  Node " << (node->originalNode ? node->originalNode->id : "?")
+                          << " margins: L=" << leftExtent << " R=" << rightExtent
+                          << " nodeWidth=" << node->size.width << "\n";
+            }
+        }
+    }
+
+    std::cerr << "Nodes with calculated margins: " << nodesWithMargins << " / " << nodes.size() << "\n";
+    std::cerr << "Max margins: left=" << maxMarginLeft << ", right=" << maxMarginRight << "\n";
 }
 
 void LayeredLayoutProvider::assignLayers(std::vector<LNode*>& nodes, std::vector<Layer>& layers) {
@@ -637,16 +736,35 @@ void LayeredLayoutProvider::assignCoordinates(std::vector<Layer>& layers) {
         // Phase 3: Balance placement (SKIPPED for now - can add later)
         // balancePlacement(layers, linearSegments);
 
+        // Calculate layer sizes (width) based on Java's LayerSizeAndGraphHeightCalculator
+        // Layer width = max(node.width + node.margin.left + node.margin.right)
+        std::vector<double> layerWidths(layers.size(), 0.0);
+        for (size_t i = 0; i < layers.size(); i++) {
+            Layer& layer = layers[i];
+            for (LNode* node : layer.nodes) {
+                double nodeWidth = node->size.width + node->margin.left + node->margin.right;
+                layerWidths[i] = std::max(layerWidths[i], nodeWidth);
+            }
+        }
+
         // Now assign X coordinates for layers
         double currentX = 0.0;
-        for (Layer& layer : layers) {
-            double maxWidth = 0.0;
+        std::cerr << "\nAssigning layer X positions (with margins):\n";
+        for (size_t i = 0; i < layers.size(); i++) {
+            Layer& layer = layers[i];
+
+            // Place nodes horizontally within the layer (left-aligned)
             for (LNode* node : layer.nodes) {
-                node->position.x = currentX;
-                maxWidth = std::max(maxWidth, node->size.width);
+                node->position.x = currentX + node->margin.left;
             }
-            currentX += maxWidth + layerSpacing_;
+
+            std::cerr << "  Layer " << i << ": x=" << currentX
+                      << ", width=" << layerWidths[i]
+                      << " (nodes=" << layer.nodes.size() << ")"
+                      << ", next x=" << (currentX + layerWidths[i] + layerSpacing_) << "\n";
+            currentX += layerWidths[i] + layerSpacing_;
         }
+        std::cerr << "Final graph width: " << currentX - layerSpacing_ << "\n";
 
         // Cleanup segments
         for (LinearSegment* seg : linearSegments) {
