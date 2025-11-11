@@ -14,7 +14,12 @@ namespace p5edges {
 static constexpr double ORTHOGONAL_ROUTING_TOLERANCE = 1e-3;
 
 double WestToEastRoutingStrategy::getPortPositionOnHyperNode(LPort* port) {
-    return port->getNode()->getPosition().y + port->getPosition().y + port->getAnchor().y;
+    double nodeY = port->getNode()->getPosition().y;
+    double portY = port->getPosition().y;
+    double anchorY = port->getAnchor().y;
+    double total = nodeY + portY + anchorY;
+    std::cerr << "      getPortPositionOnHyperNode: node.y=" << nodeY << " port.y=" << portY << " anchor.y=" << anchorY << " total=" << total << "\n";
+    return total;
 }
 
 PortSide WestToEastRoutingStrategy::getSourcePortSide() {

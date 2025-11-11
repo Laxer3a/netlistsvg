@@ -116,4 +116,10 @@ if(BUILD_EXAMPLES)
 
     add_executable(json_test examples/json_test.cpp)
     target_link_libraries(json_test elk)
+
+    add_executable(port_separation_test examples/port_separation_test.cpp)
+    target_link_libraries(port_separation_test elk)
+
+    add_executable(port_misaligned_test examples/port_misaligned_test.cpp)
+    target_link_libraries(port_misaligned_test elk)
 endif()
