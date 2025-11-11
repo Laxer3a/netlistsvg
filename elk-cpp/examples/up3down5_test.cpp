@@ -37,9 +37,37 @@ void generateSVG(const std::string& filename, Node* root, const std::string& tit
 
     // Draw edges with orthogonal routing
     svg << "  <g id=\"edges\" stroke=\"#666\" stroke-width=\"1.5\" fill=\"none\" marker-end=\"url(#arrow)\">\n";
+
+    int diagonalSegmentCount = 0;
     for (const auto& edge : root->edges) {
         if (!edge->sections.empty()) {
             const auto& section = edge->sections[0];
+
+            // Build list of all points in the path
+            std::vector<Point> pathPoints;
+            pathPoints.push_back(section.startPoint);
+            for (const auto& bp : section.bendPoints) {
+                pathPoints.push_back(bp);
+            }
+            pathPoints.push_back(section.endPoint);
+
+            // Validate orthogonal routing - check for diagonal segments
+            bool hasDiagonal = false;
+            for (size_t i = 0; i < pathPoints.size() - 1; i++) {
+                double dx = std::abs(pathPoints[i+1].x - pathPoints[i].x);
+                double dy = std::abs(pathPoints[i+1].y - pathPoints[i].y);
+
+                // If both dx and dy are significant, it's diagonal (not orthogonal)
+                if (dx > 1.0 && dy > 1.0) {
+                    std::cerr << "WARNING: Edge " << edge->id << " has DIAGONAL segment " << i << ":\n";
+                    std::cerr << "  (" << pathPoints[i].x << ", " << pathPoints[i].y << ") -> "
+                              << "(" << pathPoints[i+1].x << ", " << pathPoints[i+1].y << ")\n";
+                    std::cerr << "  dx=" << dx << ", dy=" << dy << "\n";
+                    hasDiagonal = true;
+                }
+            }
+            if (hasDiagonal) diagonalSegmentCount++;
+
             svg << "    <path d=\"M " << section.startPoint.x << " " << section.startPoint.y;
             for (const auto& bendPoint : section.bendPoints) {
                 svg << " L " << bendPoint.x << " " << bendPoint.y;
@@ -49,6 +77,12 @@ void generateSVG(const std::string& filename, Node* root, const std::string& tit
         }
     }
     svg << "  </g>\n";
+
+    if (diagonalSegmentCount > 0) {
+        std::cerr << "\n*** ORTHOGONAL ROUTING VALIDATION FAILED ***\n";
+        std::cerr << "Found " << diagonalSegmentCount << " edges with diagonal segments!\n";
+        std::cerr << "All segments should be horizontal or vertical for proper orthogonal routing.\n\n";
+    }
 
     // Draw junction points (dots where edges merge/split, NOT at simple turns)
     svg << "  <g id=\"junction-points\" fill=\"#666\">\n";
