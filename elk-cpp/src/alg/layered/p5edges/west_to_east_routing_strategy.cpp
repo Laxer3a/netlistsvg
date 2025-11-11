@@ -54,11 +54,19 @@ void WestToEastRoutingStrategy::calculateBendPoints(HyperEdgeSegment* segment, d
 
                 std::cerr << "          sourceY=" << sourceY << " targetY=" << targetY << "\n";
                 if (std::abs(sourceY - targetY) > ORTHOGONAL_ROUTING_TOLERANCE) {
-                    // Skip if this edge already has bend points (prevents adding them multiple times)
+                    // Skip if this edge already has bend points from a DIFFERENT segment
+                    // Check: if edge has bend points, verify they match this segment's X position
                     if (!edge->getBendPoints().empty()) {
-                        std::cerr << "          Edge " << edgeId << " already has " << edge->getBendPoints().size()
-                                  << " bend points, skipping (prevents duplicate)\n";
-                        continue;
+                        double existingX = edge->getBendPoints()[0].x;
+                        if (std::abs(existingX - segmentX) > ORTHOGONAL_ROUTING_TOLERANCE) {
+                            std::cerr << "          Edge " << edgeId << " has bend points at X=" << existingX
+                                      << " but this segment is at X=" << segmentX << " - REPLACING with correct position\n";
+                            edge->getBendPoints().clear();
+                        } else {
+                            std::cerr << "          Edge " << edgeId << " already has correct bend points at X=" << existingX
+                                      << ", skipping\n";
+                            continue;
+                        }
                     }
 
                     std::cerr << "          Adding bend points to edge " << edgeId << ", current bendPoints=" << edge->getBendPoints().size() << "\n";
