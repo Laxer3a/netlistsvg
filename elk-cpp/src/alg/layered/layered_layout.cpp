@@ -953,8 +953,16 @@ void LayeredLayoutProvider::applyLayout(const std::vector<LNode*>& nodes, const 
 
             if (srcPort && tgtPort) {
                 // Get bendPoints from LEdge (Java line 238)
+                // IMPORTANT: These bend points are in LAYERED GRAPH space (before padding offset)
                 std::vector<Point> bendPoints = ledge->bendPoints;
                 std::cerr << "    Edge " << ledge->originalEdge->id << " has " << bendPoints.size() << " bend points\n";
+
+                // Transform bend points from layered graph space to original graph space
+                // by adding the graphPadding offset
+                for (Point& bp : bendPoints) {
+                    bp.x += graphPadding;
+                    bp.y += graphPadding;
+                }
 
                 // Add source port absolute anchor using ORIGINAL port (not layered port!)
                 // The LPort has coordinates in layered graph space, but we need original graph space
