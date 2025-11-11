@@ -12,6 +12,7 @@
 #include <string>
 #include <memory>
 #include <climits>
+#include <random>
 
 namespace elk {
 namespace layered {
@@ -125,6 +126,7 @@ public:
 
     // Node type
     NodeType type = NodeType::NORMAL;
+    PortSide extPortSide = PortSide::UNDEFINED;  // For EXTERNAL_PORT nodes
 
     // Node content
     std::list<LPort*> ports;  // Use list for O(1) insert/remove
@@ -215,6 +217,7 @@ public:
 
     // Port placement
     PortSide side = PortSide::UNDEFINED;
+    PortType portType = PortType::UNDEFINED;  // INPUT or OUTPUT
     Point anchor;  // Edge attachment point (relative to port position)
     bool explicitlySuppliedPortAnchor = false;
 
@@ -266,6 +269,9 @@ public:
     int getDegree() const { return incomingEdges.size() + outgoingEdges.size(); }
     int getNetFlow() const { return incomingEdges.size() - outgoingEdges.size(); }
 
+    // Get all ports connected to this port (via edges)
+    std::vector<LPort*> getConnectedPorts() const;
+
     // Index in node's port list
     int getIndex() const;
 
@@ -284,6 +290,7 @@ public:
 
     // Routing
     std::vector<Point> bendPoints;  // KVectorChain in Java
+    std::vector<Point> junctionPoints;  // Junction points for edge routing
 
     // Labels
     std::vector<LLabel> labels;
@@ -410,12 +417,21 @@ public:
     // Graph-level layout data
     LPadding padding;
     Point offset;
+    Size size;  // Final graph size
+
+    // Spacing values for edge routing
+    double nodeNodeSpacing = 50.0;
+    double edgeEdgeSpacing = 10.0;
+    double edgeNodeSpacing = 10.0;
+
+    // Random number generator for edge routing
+    std::mt19937 random;
 
     // Parent graph (for hierarchical layout)
     LGraph* parentGraph = nullptr;
     LNode* parentNode = nullptr;
 
-    LGraph() = default;
+    LGraph() : random(42) {}  // Default seed
 
     // Add elements
     LNode* addNode();

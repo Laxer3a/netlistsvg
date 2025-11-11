@@ -33,13 +33,28 @@ void generateSVG(const std::string& filename, Node* root, const std::string& tit
     svg << "  <rect width=\"100%\" height=\"100%\" fill=\"white\"/>\n";
 
     // Draw edges first (so they're behind nodes)
-    svg << "  <g id=\"edges\" stroke=\"#666\" stroke-width=\"1\" fill=\"none\" marker-end=\"url(#arrow)\">\n";
+    svg << "  <g id=\"edges\" stroke=\"#666\" stroke-width=\"1.5\" fill=\"none\" marker-end=\"url(#arrow)\">\n";
     for (const auto& edge : root->edges) {
-        if (!edge->sourcePorts.empty() && !edge->targetPorts.empty()) {
+        if (!edge->sections.empty()) {
+            // Use edge sections with bend points for orthogonal routing
+            const auto& section = edge->sections[0];
+
+            // Build path using all bend points
+            svg << "    <path d=\"M " << section.startPoint.x << " " << section.startPoint.y;
+
+            // Add all intermediate bend points (creating 90-degree turns)
+            for (const auto& bendPoint : section.bendPoints) {
+                svg << " L " << bendPoint.x << " " << bendPoint.y;
+            }
+
+            // End at target
+            svg << " L " << section.endPoint.x << " " << section.endPoint.y;
+            svg << "\"/>\n";
+        } else if (!edge->sourcePorts.empty() && !edge->targetPorts.empty()) {
+            // Fallback to straight line if no sections
             auto* sourcePort = edge->sourcePorts[0];
             auto* targetPort = edge->targetPorts[0];
 
-            // Find parent nodes
             Node* sourceNode = sourcePort->parent;
             Node* targetNode = targetPort->parent;
 
@@ -51,6 +66,20 @@ void generateSVG(const std::string& filename, Node* root, const std::string& tit
 
                 svg << "    <line x1=\"" << x1 << "\" y1=\"" << y1
                     << "\" x2=\"" << x2 << "\" y2=\"" << y2 << "\"/>\n";
+            }
+        }
+    }
+    svg << "  </g>\n";
+
+    // Draw junction points (dots where edges intersect)
+    svg << "  <g id=\"junction-points\" fill=\"#666\">\n";
+    for (const auto& edge : root->edges) {
+        if (!edge->sections.empty()) {
+            const auto& section = edge->sections[0];
+            // Draw junction dots for each bend point (excluding start/end)
+            for (const auto& bendPoint : section.bendPoints) {
+                svg << "    <circle cx=\"" << bendPoint.x << "\" cy=\"" << bendPoint.y
+                    << "\" r=\"2\"/>\n";
             }
         }
     }

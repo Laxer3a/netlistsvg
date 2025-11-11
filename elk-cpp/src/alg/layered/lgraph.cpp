@@ -215,6 +215,26 @@ int LPort::getIndex() const {
     return -1;
 }
 
+std::vector<LPort*> LPort::getConnectedPorts() const {
+    std::vector<LPort*> connectedPorts;
+
+    // Add source ports of incoming edges
+    for (LEdge* edge : incomingEdges) {
+        if (edge->getSource() != nullptr) {
+            connectedPorts.push_back(edge->getSource());
+        }
+    }
+
+    // Add target ports of outgoing edges
+    for (LEdge* edge : outgoingEdges) {
+        if (edge->getTarget() != nullptr) {
+            connectedPorts.push_back(edge->getTarget());
+        }
+    }
+
+    return connectedPorts;
+}
+
 std::string LPort::getDesignation() const {
     if (!labels.empty() && !labels[0].getText().empty()) {
         return labels[0].getText();

@@ -20,6 +20,15 @@ set(FORCE_SOURCES
 set(LAYERED_SOURCES
     src/alg/layered/lgraph.cpp
     src/alg/layered/layered_layout.cpp
+    # Phase 5: Edge routing (orthogonal)
+    src/alg/layered/p5edges/base_routing_direction_strategy.cpp
+    src/alg/layered/p5edges/west_to_east_routing_strategy.cpp
+    src/alg/layered/p5edges/hyper_edge_segment.cpp
+    src/alg/layered/p5edges/hyper_edge_segment_dependency.cpp
+    src/alg/layered/p5edges/hyper_edge_cycle_detector.cpp
+    src/alg/layered/p5edges/hyper_edge_segment_splitter.cpp
+    src/alg/layered/p5edges/orthogonal_routing_generator.cpp
+    src/alg/layered/p5edges/orthogonal_edge_router.cpp
     # Disabled advanced features to avoid compilation issues
     # These are not needed for netlistsvg
     # src/alg/layered/intermediate/self_loops.cpp

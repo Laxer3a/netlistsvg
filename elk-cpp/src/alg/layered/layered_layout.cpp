@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: EPL-2.0
 
 #include "elk/alg/layered/layered_layout.h"
+#include "elk/alg/layered/p5edges/orthogonal_edge_router.h"
 #include <algorithm>
 #include <queue>
 #include <limits>
@@ -50,9 +51,8 @@ void LayeredLayoutProvider::layout(Node* graph, ProgressCallback progress) {
     if (progress) progress("Placing nodes", 0.75);
     assignCoordinates(layers);
 
-    // Phase 7: Route edges
-    if (progress) progress("Routing edges", 0.90);
-    routeEdges(layers, edges);
+    // Phase 7: Edge routing is now done inside assignCoordinates() via OrthogonalEdgeRouter
+    // No need to call routeEdges() separately - it would clear the bend points!
 
     // Apply back to original graph
     applyLayout(nodes, edges);
@@ -134,6 +134,24 @@ void LayeredLayoutProvider::importGraph(Node* graph, std::vector<LNode*>& nodes,
         }
     }
     std::cerr << "Created " << edgeCount << " edges\n";
+
+    // Set port types based on edge connectivity (matching Java ELK's PortType)
+    for (auto& pair : portMap) {
+        LPort* lport = pair.second;
+        bool hasIncoming = !lport->incomingEdges.empty();
+        bool hasOutgoing = !lport->outgoingEdges.empty();
+
+        if (hasOutgoing) {
+            // If port has outgoing edges, it's an OUTPUT port
+            lport->portType = PortType::OUTPUT;
+        } else if (hasIncoming) {
+            // If port only has incoming edges, it's an INPUT port
+            lport->portType = PortType::INPUT;
+        } else {
+            // No edges connected
+            lport->portType = PortType::UNDEFINED;
+        }
+    }
 
     // Debug: Check edge connectivity for a few nodes
     for (auto& child : graph->children) {
@@ -747,24 +765,15 @@ void LayeredLayoutProvider::assignCoordinates(std::vector<Layer>& layers) {
             }
         }
 
-        // Now assign X coordinates for layers
-        double currentX = 0.0;
-        std::cerr << "\nAssigning layer X positions (with margins):\n";
-        for (size_t i = 0; i < layers.size(); i++) {
-            Layer& layer = layers[i];
+        // Use OrthogonalEdgeRouter to assign X coordinates with dynamic spacing
+        std::cerr << "\nUsing OrthogonalEdgeRouter for dynamic layer spacing:\n";
+        double edgeEdgeSpacing = 10.0;  // Spacing between routing slots
+        double edgeNodeSpacing = 10.0;  // Spacing between edges and nodes
 
-            // Place nodes horizontally within the layer (left-aligned)
-            for (LNode* node : layer.nodes) {
-                node->position.x = currentX + node->margin.left;
-            }
+        double finalWidth = p5edges::OrthogonalEdgeRouter::process(
+            layers, layerSpacing_, edgeEdgeSpacing, edgeNodeSpacing);
 
-            std::cerr << "  Layer " << i << ": x=" << currentX
-                      << ", width=" << layerWidths[i]
-                      << " (nodes=" << layer.nodes.size() << ")"
-                      << ", next x=" << (currentX + layerWidths[i] + layerSpacing_) << "\n";
-            currentX += layerWidths[i] + layerSpacing_;
-        }
-        std::cerr << "Final graph width: " << currentX - layerSpacing_ << "\n";
+        std::cerr << "Final graph width (with dynamic spacing): " << finalWidth << "\n";
 
         // Cleanup segments
         for (LinearSegment* seg : linearSegments) {
@@ -929,7 +938,9 @@ void LayeredLayoutProvider::applyLayout(const std::vector<LNode*>& nodes, const 
     std::cerr << "Applied layout to " << appliedCount << " nodes, skipped " << skippedCount << "\n";
 
     // Apply edge layout (transpiled from ElkGraphLayoutTransferrer.applyEdgeLayout)
+    std::cerr << "\nApplying edge layout for " << edges.size() << " edges\n";
     for (const LEdge* ledge : edges) {
+        std::cerr << "  LEdge pointer: " << ledge << "\n";
         if (ledge->originalEdge) {
             LPort* srcPort = ledge->getSource();
             LPort* tgtPort = ledge->getTarget();
@@ -937,6 +948,7 @@ void LayeredLayoutProvider::applyLayout(const std::vector<LNode*>& nodes, const 
             if (srcPort && tgtPort) {
                 // Get bendPoints from LEdge (Java line 238)
                 std::vector<Point> bendPoints = ledge->bendPoints;
+                std::cerr << "    Edge " << ledge->originalEdge->id << " has " << bendPoints.size() << " bend points\n";
 
                 // Add source port absolute anchor (Java lines 246-260)
                 Point sourcePoint = srcPort->getAbsoluteAnchor();
