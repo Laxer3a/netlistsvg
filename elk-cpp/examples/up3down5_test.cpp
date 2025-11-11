@@ -5,10 +5,85 @@
 #include <elk/graph/graph.h>
 #include <elk/alg/layered/layered_layout.h>
 #include <iostream>
+#include <fstream>
 #include <memory>
 #include <map>
 
 using namespace elk;
+
+void generateSVG(const std::string& filename, Node* root, const std::string& title) {
+    std::ofstream svg(filename);
+
+    // Calculate bounds
+    double maxX = 0, maxY = 0;
+    for (const auto& child : root->children) {
+        maxX = std::max(maxX, child->position.x + child->size.width);
+        maxY = std::max(maxY, child->position.y + child->size.height);
+    }
+
+    double width = maxX + 24;
+    double height = maxY + 24;
+
+    svg << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+    svg << "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"" << width << "\" height=\"" << height << "\">\n";
+    svg << "  <title>" << title << "</title>\n";
+    svg << "  <defs>\n";
+    svg << "    <marker id=\"arrow\" markerWidth=\"10\" markerHeight=\"10\" refX=\"9\" refY=\"3\" orient=\"auto\" markerUnits=\"strokeWidth\">\n";
+    svg << "      <path d=\"M0,0 L0,6 L9,3 z\" fill=\"#666\"/>\n";
+    svg << "    </marker>\n";
+    svg << "  </defs>\n";
+    svg << "  <rect width=\"100%\" height=\"100%\" fill=\"white\"/>\n";
+
+    // Draw edges with orthogonal routing
+    svg << "  <g id=\"edges\" stroke=\"#666\" stroke-width=\"1.5\" fill=\"none\" marker-end=\"url(#arrow)\">\n";
+    for (const auto& edge : root->edges) {
+        if (!edge->sections.empty()) {
+            const auto& section = edge->sections[0];
+            svg << "    <path d=\"M " << section.startPoint.x << " " << section.startPoint.y;
+            for (const auto& bendPoint : section.bendPoints) {
+                svg << " L " << bendPoint.x << " " << bendPoint.y;
+            }
+            svg << " L " << section.endPoint.x << " " << section.endPoint.y;
+            svg << "\"/>\n";
+        }
+    }
+    svg << "  </g>\n";
+
+    // Draw junction points
+    svg << "  <g id=\"junction-points\" fill=\"#666\">\n";
+    for (const auto& edge : root->edges) {
+        if (!edge->sections.empty()) {
+            const auto& section = edge->sections[0];
+            for (const auto& bendPoint : section.bendPoints) {
+                svg << "    <circle cx=\"" << bendPoint.x << "\" cy=\"" << bendPoint.y << "\" r=\"2\"/>\n";
+            }
+        }
+    }
+    svg << "  </g>\n";
+
+    // Draw nodes
+    svg << "  <g id=\"nodes\">\n";
+    for (const auto& child : root->children) {
+        svg << "    <g id=\"" << child->id << "\">\n";
+        svg << "      <rect x=\"" << child->position.x << "\" y=\"" << child->position.y
+            << "\" width=\"" << child->size.width << "\" height=\"" << child->size.height
+            << "\" fill=\"#e3f2fd\" stroke=\"#1976d2\" stroke-width=\"2\" rx=\"2\"/>\n";
+        svg << "      <text x=\"" << (child->position.x + child->size.width/2)
+            << "\" y=\"" << (child->position.y + child->size.height/2 + 4)
+            << "\" text-anchor=\"middle\" font-family=\"monospace\" font-size=\"8\" fill=\"#000\">"
+            << child->id << "</text>\n";
+        svg << "    </g>\n";
+    }
+    svg << "  </g>\n";
+
+    svg << "  <text x=\"10\" y=\"15\" font-family=\"Arial\" font-size=\"14\" font-weight=\"bold\" fill=\"#000\">"
+        << title << "</text>\n";
+
+    svg << "</svg>\n";
+    svg.close();
+
+    std::cout << "Generated " << filename << " (" << width << "x" << height << ")\n";
+}
 
 int main() {
     auto root = std::make_unique<Node>("up3down5");
@@ -552,8 +627,11 @@ int main() {
     layout.setLayerSpacing(35.0);
     layout.layout(root.get(), nullptr);
 
+    // Generate SVG output
+    generateSVG("/tmp/up3down5_cpp.svg", root.get(), "up3down5 - C++ ELK Layout");
+
     // Print results
-    std::cout << "=== C++ ELK Layout Results ===" << std::endl;
+    std::cout << "\n=== C++ ELK Layout Results ===" << std::endl;
     std::cout << "Graph size: " << root->size.width << " x " << root->size.height << std::endl;
     std::cout << "\nNode Positions:" << std::endl;
     for (const auto& child : root->children) {

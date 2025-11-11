@@ -959,6 +959,10 @@ void LayeredLayoutProvider::applyLayout(const std::vector<LNode*>& nodes, const 
                 // Add source port absolute anchor using ORIGINAL port (not layered port!)
                 // The LPort has coordinates in layered graph space, but we need original graph space
                 Port* origSrc = srcPort->originalPort;
+                if (!origSrc || !origSrc->parent) {
+                    std::cerr << "    WARNING: Source port has no original port or parent, skipping edge\n";
+                    continue;
+                }
                 Point sourcePoint{
                     origSrc->parent->position.x + origSrc->position.x,
                     origSrc->parent->position.y + origSrc->position.y
@@ -968,6 +972,10 @@ void LayeredLayoutProvider::applyLayout(const std::vector<LNode*>& nodes, const 
 
                 // Add target port absolute anchor using ORIGINAL port
                 Port* origTgt = tgtPort->originalPort;
+                if (!origTgt || !origTgt->parent) {
+                    std::cerr << "    WARNING: Target port has no original port or parent, skipping edge\n";
+                    continue;
+                }
                 Point targetPoint{
                     origTgt->parent->position.x + origTgt->position.x,
                     origTgt->parent->position.y + origTgt->position.y
