@@ -967,8 +967,33 @@ void LayeredLayoutProvider::applyLayout(const std::vector<LNode*>& nodes, const 
                 // Add source port absolute anchor using ORIGINAL port (not layered port!)
                 // The LPort has coordinates in layered graph space, but we need original graph space
                 Port* origSrc = srcPort->originalPort;
-                if (!origSrc || !origSrc->parent) {
-                    std::cerr << "    WARNING: Source port has no original port or parent, skipping edge\n";
+
+                // If no originalPort, this might be a dummy port - trace back through incoming edges
+                if (!origSrc) {
+                    if (srcPort->node) {
+                        std::cerr << "    Source port node type: " << (int)srcPort->node->type << "\n";
+                        if (srcPort->node->type == NodeType::LONG_EDGE) {
+                            // For dummy nodes, follow incoming edge to find real source port
+                            std::cerr << "    Source port is on LONG_EDGE dummy, incomingEdges count: " << srcPort->incomingEdges.size() << "\n";
+                            if (!srcPort->incomingEdges.empty()) {
+                                LEdge* inEdge = srcPort->incomingEdges.front();
+                                LPort* prevSrc = inEdge ? inEdge->getSource() : nullptr;
+                                std::cerr << "    Incoming edge source port: " << prevSrc << "\n";
+                                if (prevSrc) {
+                                    origSrc = prevSrc->originalPort;
+                                    std::cerr << "    Traced dummy source back to originalPort: " << origSrc << "\n";
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (!origSrc) {
+                    std::cerr << "    WARNING: Source LPort has no originalPort pointer, skipping edge " << ledge->originalEdge->id << "\n";
+                    continue;
+                }
+                if (!origSrc->parent) {
+                    std::cerr << "    WARNING: Source originalPort has no parent (port id=" << origSrc->id << "), skipping edge " << ledge->originalEdge->id << "\n";
                     continue;
                 }
                 Point sourcePoint{
@@ -980,8 +1005,25 @@ void LayeredLayoutProvider::applyLayout(const std::vector<LNode*>& nodes, const 
 
                 // Add target port absolute anchor using ORIGINAL port
                 Port* origTgt = tgtPort->originalPort;
-                if (!origTgt || !origTgt->parent) {
-                    std::cerr << "    WARNING: Target port has no original port or parent, skipping edge\n";
+
+                // If no originalPort, this might be a dummy port - trace forward through outgoing edges
+                if (!origTgt && tgtPort->node && tgtPort->node->type == NodeType::LONG_EDGE) {
+                    // For dummy nodes, follow outgoing edge to find real target port
+                    if (!tgtPort->outgoingEdges.empty()) {
+                        LEdge* outEdge = tgtPort->outgoingEdges.front();
+                        if (outEdge->getTarget()) {
+                            origTgt = outEdge->getTarget()->originalPort;
+                            std::cerr << "    Traced dummy target forward to original port\n";
+                        }
+                    }
+                }
+
+                if (!origTgt) {
+                    std::cerr << "    WARNING: Target LPort has no originalPort pointer, skipping edge " << ledge->originalEdge->id << "\n";
+                    continue;
+                }
+                if (!origTgt->parent) {
+                    std::cerr << "    WARNING: Target originalPort has no parent (port id=" << origTgt->id << "), skipping edge " << ledge->originalEdge->id << "\n";
                     continue;
                 }
                 Point targetPoint{
