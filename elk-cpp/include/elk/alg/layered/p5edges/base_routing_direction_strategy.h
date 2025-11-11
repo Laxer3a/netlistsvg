@@ -49,8 +49,8 @@ public:
     /**
      * Returns the set of junction points created so far.
      */
-    std::set<KVector>& getCreatedJunctionPoints() { return createdJunctionPoints; }
-    const std::set<KVector>& getCreatedJunctionPoints() const { return createdJunctionPoints; }
+    std::set<Point>& getCreatedJunctionPoints() { return createdJunctionPoints; }
+    const std::set<Point>& getCreatedJunctionPoints() const { return createdJunctionPoints; }
 
     /**
      * Removes all junction points created so far.
@@ -107,14 +107,14 @@ protected:
      * @param pos the bend point position
      * @param vertical true if the connecting segment is vertical, false if it is horizontal
      */
-    void addJunctionPointIfNecessary(LEdge* edge, HyperEdgeSegment* segment, const KVector& pos, bool vertical);
+    void addJunctionPointIfNecessary(LEdge* edge, HyperEdgeSegment* segment, const Point& pos, bool vertical);
 
 private:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Properties
 
     /** Set of already created junction points, to avoid multiple points at the same position. */
-    std::set<KVector> createdJunctionPoints;
+    std::set<Point> createdJunctionPoints;
 };
 
 } // namespace p5edges

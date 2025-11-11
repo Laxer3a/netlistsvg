@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <limits>
 #include <cmath>
+#include <iostream>
 
 namespace elk {
 namespace layered {
@@ -56,6 +57,9 @@ int OrthogonalRoutingGenerator::routeEdges(LGraph* layeredGraph,
                                             const std::vector<LNode*>* targetLayerNodes,
                                             double startPos) {
 
+    std::cerr << "\nrouteEdges called: sourceLayer=" << (sourceLayerNodes ? std::to_string(sourceLayerNodes->size()) : "null")
+              << " nodes, targetLayer=" << (targetLayerNodes ? std::to_string(targetLayerNodes->size()) : "null") << " nodes\n";
+
     // Keep track of our hyperedge segments, and which ports they were created for
     std::map<LPort*, HyperEdgeSegment*> portToEdgeSegmentMap;
     std::vector<HyperEdgeSegment*> edgeSegments;
@@ -66,6 +70,11 @@ int OrthogonalRoutingGenerator::routeEdges(LGraph* layeredGraph,
                            edgeSegments, portToEdgeSegmentMap);
     createHyperEdgeSegments(targetLayerNodes, routingStrategy_->getTargetPortSide(),
                            edgeSegments, portToEdgeSegmentMap);
+
+    // If no edge segments were created, return early
+    if (edgeSegments.empty()) {
+        return 0;
+    }
 
     // Our critical conflict threshold is a fraction of the minimum distance between two
     // horizontal hyperedge segments
@@ -99,16 +108,21 @@ int OrthogonalRoutingGenerator::routeEdges(LGraph* layeredGraph,
 
     // Set bend points with appropriate coordinates
     int rankCount = -1;
+    int bendPointsCalculated = 0;
     for (HyperEdgeSegment* node : edgeSegments) {
         // Edges that are just straight lines don't take up a slot and don't need bend points
         if (std::abs(node->getStartCoordinate() - node->getEndCoordinate()) < TOLERANCE) {
+            std::cerr << "  Skipping segment (straight line)\n";
             continue;
         }
 
         rankCount = std::max(rankCount, node->getRoutingSlot());
 
+        std::cerr << "  Calculating bend points for segment at slot " << node->getRoutingSlot() << "\n";
         routingStrategy_->calculateBendPoints(node, startPos, edgeSpacing_);
+        bendPointsCalculated++;
     }
+    std::cerr << "  Calculated bend points for " << bendPointsCalculated << " segments, rankCount=" << (rankCount + 1) << "\n";
 
     // Release the created resources
     routingStrategy_->clearCreatedJunctionPoints();
@@ -168,10 +182,18 @@ void OrthogonalRoutingGenerator::createHyperEdgeSegments(
         std::map<LPort*, HyperEdgeSegment*>& portToHyperEdgeSegmentMap) {
 
     if (nodes != nullptr) {
+        std::cerr << "createHyperEdgeSegments: " << nodes->size() << " nodes, looking for ports on side " << (int)portSide << "\n";
         for (LNode* node : *nodes) {
+            std::cerr << "  Node with " << node->getPorts().size() << " ports\n";
             for (LPort* port : node->getPorts()) {
-                // Filter for OUTPUT ports on the specified side
-                if (port->type == PortType::OUTPUT && port->side == portSide) {
+                std::cerr << "    Port: side=" << (int)port->side << " incoming=" << port->incomingEdges.size()
+                          << " outgoing=" << port->outgoingEdges.size() << "\n";
+                // Filter for ports on the specified side that participate in edges
+                // For EAST side (source): check for outgoing edges
+                // For WEST side (target): check for incoming edges
+                bool hasRelevantEdges = !port->outgoingEdges.empty() || !port->incomingEdges.empty();
+                if (hasRelevantEdges && port->side == portSide) {
+                    std::cerr << "      -> Creating hyperedge segment for this port\n";
                     HyperEdgeSegment* hyperEdge = portToHyperEdgeSegmentMap[port];
                     if (hyperEdge == nullptr) {
                         hyperEdge = new HyperEdgeSegment(routingStrategy_);
@@ -181,6 +203,7 @@ void OrthogonalRoutingGenerator::createHyperEdgeSegments(
                 }
             }
         }
+        std::cerr << "  Created " << hyperEdges.size() << " segments\n";
     }
 }
 

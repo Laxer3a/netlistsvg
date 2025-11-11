@@ -10,6 +10,15 @@
 namespace elk {
 
 // ============================================================================
+// Constants
+// ============================================================================
+
+constexpr double EPSILON = 1e-6;
+constexpr double DEFAULT_SPACING = 20.0;
+constexpr double DEFAULT_PORT_SPACING = 10.0;
+constexpr double DEFAULT_BORDER_SPACING = 12.0;
+
+// ============================================================================
 // Basic Geometric Types
 // ============================================================================
 
@@ -34,6 +43,20 @@ struct Point {
     Point normalized() const {
         double len = length();
         return len > 0 ? Point(x / len, y / len) : Point(0, 0);
+    }
+
+    // Comparison operators for use in std::set
+    bool operator==(const Point& other) const {
+        return std::abs(x - other.x) < EPSILON && std::abs(y - other.y) < EPSILON;
+    }
+
+    bool operator!=(const Point& other) const {
+        return !(*this == other);
+    }
+
+    bool operator<(const Point& other) const {
+        if (std::abs(x - other.x) > EPSILON) return x < other.x;
+        return y < other.y;
     }
 };
 
@@ -148,14 +171,5 @@ enum class CrossingMinimizationStrategy {
     INTERACTIVE,
     NONE
 };
-
-// ============================================================================
-// Constants
-// ============================================================================
-
-constexpr double EPSILON = 1e-6;
-constexpr double DEFAULT_SPACING = 20.0;
-constexpr double DEFAULT_PORT_SPACING = 10.0;
-constexpr double DEFAULT_BORDER_SPACING = 12.0;
 
 } // namespace elk

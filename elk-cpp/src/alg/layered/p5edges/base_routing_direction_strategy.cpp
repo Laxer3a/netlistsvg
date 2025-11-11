@@ -33,7 +33,7 @@ BaseRoutingDirectionStrategy* BaseRoutingDirectionStrategy::forRoutingDirection(
 void BaseRoutingDirectionStrategy::addJunctionPointIfNecessary(
         LEdge* edge,
         HyperEdgeSegment* segment,
-        const KVector& pos,
+        const Point& pos,
         bool vertical) {
 
     double p = vertical ? pos.y : pos.x;
@@ -66,9 +66,8 @@ void BaseRoutingDirectionStrategy::addJunctionPointIfNecessary(
         // Create a new junction point for the edge at the bend point's position
         auto& junctionPoints = edge->junctionPoints;
 
-        KVector jpoint = pos;
-        junctionPoints.push_back(jpoint);
-        createdJunctionPoints.insert(jpoint);
+        junctionPoints.push_back(pos);
+        createdJunctionPoints.insert(pos);
     }
 }
 

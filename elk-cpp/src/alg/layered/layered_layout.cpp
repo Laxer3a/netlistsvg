@@ -51,9 +51,8 @@ void LayeredLayoutProvider::layout(Node* graph, ProgressCallback progress) {
     if (progress) progress("Placing nodes", 0.75);
     assignCoordinates(layers);
 
-    // Phase 7: Route edges
-    if (progress) progress("Routing edges", 0.90);
-    routeEdges(layers, edges);
+    // Phase 7: Edge routing is now done inside assignCoordinates() via OrthogonalEdgeRouter
+    // No need to call routeEdges() separately - it would clear the bend points!
 
     // Apply back to original graph
     applyLayout(nodes, edges);
@@ -921,7 +920,9 @@ void LayeredLayoutProvider::applyLayout(const std::vector<LNode*>& nodes, const 
     std::cerr << "Applied layout to " << appliedCount << " nodes, skipped " << skippedCount << "\n";
 
     // Apply edge layout (transpiled from ElkGraphLayoutTransferrer.applyEdgeLayout)
+    std::cerr << "\nApplying edge layout for " << edges.size() << " edges\n";
     for (const LEdge* ledge : edges) {
+        std::cerr << "  LEdge pointer: " << ledge << "\n";
         if (ledge->originalEdge) {
             LPort* srcPort = ledge->getSource();
             LPort* tgtPort = ledge->getTarget();
@@ -929,6 +930,7 @@ void LayeredLayoutProvider::applyLayout(const std::vector<LNode*>& nodes, const 
             if (srcPort && tgtPort) {
                 // Get bendPoints from LEdge (Java line 238)
                 std::vector<Point> bendPoints = ledge->bendPoints;
+                std::cerr << "    Edge " << ledge->originalEdge->id << " has " << bendPoints.size() << " bend points\n";
 
                 // Add source port absolute anchor (Java lines 246-260)
                 Point sourcePoint = srcPort->getAbsoluteAnchor();

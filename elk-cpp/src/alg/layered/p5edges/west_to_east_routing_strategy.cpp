@@ -4,6 +4,7 @@
 
 #include "../../../../include/elk/alg/layered/p5edges/west_to_east_routing_strategy.h"
 #include <cmath>
+#include <iostream>
 
 namespace elk {
 namespace layered {
@@ -33,21 +34,27 @@ void WestToEastRoutingStrategy::calculateBendPoints(HyperEdgeSegment* segment, d
     // Calculate coordinates for each port's bend points
     double segmentX = startPos + segment->getRoutingSlot() * edgeSpacing;
 
+    std::cerr << "    calculateBendPoints: segment has " << segment->getPorts().size() << " ports\n";
     for (LPort* port : segment->getPorts()) {
         double sourceY = port->getAbsoluteAnchor().y;
 
+        std::cerr << "      Port has " << port->getOutgoingEdges().size() << " outgoing edges\n";
         for (LEdge* edge : port->getOutgoingEdges()) {
+            std::cerr << "        Processing edge\n";
             if (!edge->isSelfLoop()) {
                 LPort* target = edge->getTarget();
                 double targetY = target->getAbsoluteAnchor().y;
 
+                std::cerr << "          sourceY=" << sourceY << " targetY=" << targetY << "\n";
                 if (std::abs(sourceY - targetY) > ORTHOGONAL_ROUTING_TOLERANCE) {
+                    std::cerr << "          Adding bend points to edge " << edge << ", current bendPoints=" << edge->getBendPoints().size() << "\n";
                     // We'll update these if we find that the segment was split
                     double currentX = segmentX;
                     HyperEdgeSegment* currentSegment = segment;
 
-                    KVector bend(currentX, sourceY);
+                    Point bend(currentX, sourceY);
                     edge->getBendPoints().push_back(bend);
+                    std::cerr << "          After push: bendPoints=" << edge->getBendPoints().size() << "\n";
                     addJunctionPointIfNecessary(edge, currentSegment, bend, true);
 
                     // If this segment was split, we need two additional bend points
@@ -55,7 +62,7 @@ void WestToEastRoutingStrategy::calculateBendPoints(HyperEdgeSegment* segment, d
                     if (splitPartner != nullptr) {
                         double splitY = splitPartner->getIncomingConnectionCoordinates().front();
 
-                        bend = KVector(currentX, splitY);
+                        bend = Point(currentX, splitY);
                         edge->getBendPoints().push_back(bend);
                         addJunctionPointIfNecessary(edge, currentSegment, bend, true);
 
@@ -63,12 +70,12 @@ void WestToEastRoutingStrategy::calculateBendPoints(HyperEdgeSegment* segment, d
                         currentX = startPos + splitPartner->getRoutingSlot() * edgeSpacing;
                         currentSegment = splitPartner;
 
-                        bend = KVector(currentX, splitY);
+                        bend = Point(currentX, splitY);
                         edge->getBendPoints().push_back(bend);
                         addJunctionPointIfNecessary(edge, currentSegment, bend, true);
                     }
 
-                    bend = KVector(currentX, targetY);
+                    bend = Point(currentX, targetY);
                     edge->getBendPoints().push_back(bend);
                     addJunctionPointIfNecessary(edge, currentSegment, bend, true);
                 }

@@ -126,6 +126,7 @@ public:
 
     // Node type
     NodeType type = NodeType::NORMAL;
+    PortSide extPortSide = PortSide::UNDEFINED;  // For EXTERNAL_PORT nodes
 
     // Node content
     std::list<LPort*> ports;  // Use list for O(1) insert/remove
@@ -267,6 +268,9 @@ public:
     int getDegree() const { return incomingEdges.size() + outgoingEdges.size(); }
     int getNetFlow() const { return incomingEdges.size() - outgoingEdges.size(); }
 
+    // Get all ports connected to this port (via edges)
+    std::vector<LPort*> getConnectedPorts() const;
+
     // Index in node's port list
     int getIndex() const;
 
@@ -285,6 +289,7 @@ public:
 
     // Routing
     std::vector<Point> bendPoints;  // KVectorChain in Java
+    std::vector<Point> junctionPoints;  // Junction points for edge routing
 
     // Labels
     std::vector<LLabel> labels;
