@@ -46,49 +46,51 @@ void WestToEastRoutingStrategy::calculateBendPoints(HyperEdgeSegment* segment, d
 
         std::cerr << "      Port has " << port->getOutgoingEdges().size() << " outgoing edges\n";
         for (LEdge* edge : port->getOutgoingEdges()) {
-            std::cerr << "        Processing edge\n";
+            std::string edgeId = edge->originalEdge ? edge->originalEdge->id : "unknown";
+            std::cerr << "        Processing edge " << edgeId << "\n";
             if (!edge->isSelfLoop()) {
                 LPort* target = edge->getTarget();
                 double targetY = target->getAbsoluteAnchor().y;
 
                 std::cerr << "          sourceY=" << sourceY << " targetY=" << targetY << "\n";
                 if (std::abs(sourceY - targetY) > ORTHOGONAL_ROUTING_TOLERANCE) {
-                    std::cerr << "          Adding bend points to edge " << edge << ", current bendPoints=" << edge->getBendPoints().size() << "\n";
+                    std::cerr << "          Adding bend points to edge " << edgeId << ", current bendPoints=" << edge->getBendPoints().size() << "\n";
                     // We'll update these if we find that the segment was split
                     double currentX = segmentX;
                     HyperEdgeSegment* currentSegment = segment;
 
                     Point bend(currentX, sourceY);
                     edge->getBendPoints().push_back(bend);
-                    std::cerr << "          After push: bendPoints=" << edge->getBendPoints().size() << "\n";
+                    std::cerr << "          Bend[0]: (" << bend.x << ", " << bend.y << ")\n";
                     addJunctionPointIfNecessary(edge, currentSegment, bend, true);
 
                     // If this segment was split, we need two additional bend points
                     HyperEdgeSegment* splitPartner = segment->getSplitPartner();
                     if (splitPartner != nullptr) {
-                        std::cerr << "          SPLIT SEGMENT: partner slot=" << splitPartner->getRoutingSlot() << "\n";
+                        std::cerr << "          *** SPLIT SEGMENT for edge " << edgeId << " ***\n";
+                        std::cerr << "          Partner slot=" << splitPartner->getRoutingSlot() << "\n";
                         double splitY = splitPartner->getIncomingConnectionCoordinates().front();
 
                         bend = Point(currentX, splitY);
                         edge->getBendPoints().push_back(bend);
-                        std::cerr << "          Added bend: (" << bend.x << ", " << bend.y << ")\n";
+                        std::cerr << "          Bend[1]: (" << bend.x << ", " << bend.y << ") - vertical to splitY\n";
                         addJunctionPointIfNecessary(edge, currentSegment, bend, true);
 
                         // Advance to the split partner's routing slot
                         double prevX = currentX;
                         currentX = startPos + splitPartner->getRoutingSlot() * edgeSpacing;
                         std::cerr << "          Split partner X: startPos=" << startPos << " + slot=" << splitPartner->getRoutingSlot() << " * spacing=" << edgeSpacing << " = " << currentX << "\n";
-                        std::cerr << "          ERROR: Using startPos from current layer interval, but split partner may be in different interval!\n";
                         currentSegment = splitPartner;
 
                         bend = Point(currentX, splitY);
                         edge->getBendPoints().push_back(bend);
-                        std::cerr << "          Added bend: (" << bend.x << ", " << bend.y << ")\n";
+                        std::cerr << "          Bend[2]: (" << bend.x << ", " << bend.y << ") - horizontal to partner slot\n";
                         addJunctionPointIfNecessary(edge, currentSegment, bend, true);
                     }
 
                     bend = Point(currentX, targetY);
                     edge->getBendPoints().push_back(bend);
+                    std::cerr << "          Bend[final]: (" << bend.x << ", " << bend.y << ") - vertical to target\n";
                     addJunctionPointIfNecessary(edge, currentSegment, bend, true);
                 }
             }

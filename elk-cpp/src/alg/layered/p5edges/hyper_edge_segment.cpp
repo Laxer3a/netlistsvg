@@ -6,6 +6,7 @@
 #include "../../../../include/elk/alg/layered/p5edges/base_routing_direction_strategy.h"
 #include <algorithm>
 #include <sstream>
+#include <iostream>
 
 namespace elk {
 namespace layered {
@@ -19,6 +20,7 @@ HyperEdgeSegment::HyperEdgeSegment(BaseRoutingDirectionStrategy* routingStrategy
 }
 
 void HyperEdgeSegment::addPortPositions(LPort* port, std::map<LPort*, HyperEdgeSegment*>& hyperEdgeSegmentMap) {
+    std::cerr << "      addPortPositions: port=" << port << " side=" << (int)port->side << "\n";
     hyperEdgeSegmentMap[port] = this;
     ports_.push_back(port);
     double portPos = routingStrategy_->getPortPositionOnHyperNode(port);
@@ -34,9 +36,15 @@ void HyperEdgeSegment::addPortPositions(LPort* port, std::map<LPort*, HyperEdgeS
     recomputeExtent();
 
     // Add connected ports recursively
-    for (LPort* otherPort : port->getConnectedPorts()) {
+    std::vector<LPort*> connectedPorts = port->getConnectedPorts();
+    std::cerr << "      Connected ports: " << connectedPorts.size() << "\n";
+    for (LPort* otherPort : connectedPorts) {
+        std::cerr << "        Checking otherPort=" << otherPort << " side=" << (int)otherPort->side;
         if (hyperEdgeSegmentMap.find(otherPort) == hyperEdgeSegmentMap.end()) {
+            std::cerr << " - not in map, recursing\n";
             addPortPositions(otherPort, hyperEdgeSegmentMap);
+        } else {
+            std::cerr << " - already in map, skipping\n";
         }
     }
 }
