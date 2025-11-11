@@ -1000,117 +1000,25 @@ void LayeredLayoutProvider::applyLayout(const std::vector<LNode*>& nodes, const 
 
             if (srcPort && tgtPort) {
                 // Get bendPoints from LEdge (Java line 238)
-                // IMPORTANT: These bend points are in LAYERED GRAPH space (before padding offset)
+                // These are in LAYERED GRAPH coordinate space
                 std::vector<Point> bendPoints = ledge->bendPoints;
-                std::cerr << "    Edge " << ledge->originalEdge->id << " has " << bendPoints.size() << " bend points\n";
+                std::cerr << "    Edge " << ledge->originalEdge->id << " has " << bendPoints.size() << " bend points (in layered space)\n";
 
-                // Debug: Print bend points before transformation
-                if (ledge->originalEdge->id == "e34") {
-                    std::cerr << "    DEBUG e34 bend points (layered space):\n";
-                    for (size_t i = 0; i < bendPoints.size(); i++) {
-                        std::cerr << "      [" << i << "]: (" << bendPoints[i].x << ", " << bendPoints[i].y << ")\n";
-                    }
-                }
+                // Add source point from LAYERED graph (Java line 258)
+                // Use getAbsoluteAnchor() which gives position in layered graph space
+                Point sourcePoint = srcPort->getAbsoluteAnchor();
+                bendPoints.insert(bendPoints.begin(), sourcePoint);
 
-                // Transform bend points from layered graph space to original graph space
-                // by adding the graphPadding offset
+                // Add target point from LAYERED graph (Java line 263)
+                Point targetPoint = tgtPort->getAbsoluteAnchor();
+                bendPoints.push_back(targetPoint);
+
+                // Now offset ALL points together by graphPadding (Java line 270)
+                // This transforms from layered graph space to original graph space
                 for (Point& bp : bendPoints) {
                     bp.x += graphPadding;
                     bp.y += graphPadding;
                 }
-
-                // Debug: Print bend points after transformation
-                if (ledge->originalEdge->id == "e34") {
-                    std::cerr << "    DEBUG e34 bend points (after +12 padding):\n";
-                    for (size_t i = 0; i < bendPoints.size(); i++) {
-                        std::cerr << "      [" << i << "]: (" << bendPoints[i].x << ", " << bendPoints[i].y << ")\n";
-                    }
-                }
-
-                // Add source port absolute anchor using ORIGINAL port (not layered port!)
-                // The LPort has coordinates in layered graph space, but we need original graph space
-                Port* origSrc = srcPort->originalPort;
-
-                // If no originalPort, this might be a dummy port - trace back through incoming edges
-                if (!origSrc) {
-                    if (srcPort->node) {
-                        std::cerr << "    Source port node type: " << (int)srcPort->node->type << "\n";
-                        if (srcPort->node->type == NodeType::LONG_EDGE) {
-                            // For dummy nodes, follow incoming edge to find real source port
-                            std::cerr << "    Source port is on LONG_EDGE dummy, incomingEdges count: " << srcPort->incomingEdges.size() << "\n";
-                            if (!srcPort->incomingEdges.empty()) {
-                                LEdge* inEdge = srcPort->incomingEdges.front();
-                                LPort* prevSrc = inEdge ? inEdge->getSource() : nullptr;
-                                std::cerr << "    Incoming edge source port: " << prevSrc << "\n";
-                                if (prevSrc) {
-                                    origSrc = prevSrc->originalPort;
-                                    std::cerr << "    Traced dummy source back to originalPort: " << origSrc << "\n";
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (!origSrc) {
-                    std::cerr << "    WARNING: Source LPort has no originalPort pointer, skipping edge " << ledge->originalEdge->id << "\n";
-                    continue;
-                }
-                if (!origSrc->parent) {
-                    std::cerr << "    WARNING: Source originalPort has no parent (port id=" << origSrc->id << "), skipping edge " << ledge->originalEdge->id << "\n";
-                    continue;
-                }
-                Point sourcePoint{
-                    origSrc->parent->position.x + origSrc->position.x,
-                    origSrc->parent->position.y + origSrc->position.y
-                };
-                std::cerr << "    Source port absolute position: (" << sourcePoint.x << ", " << sourcePoint.y << ")\n";
-
-                // Debug: Compare with layered graph port position
-                if (ledge->originalEdge->id == "e1" || ledge->originalEdge->id == "e34") {
-                    std::cerr << "    DEBUG " << ledge->originalEdge->id << " source:\n";
-                    std::cerr << "      srcPort->node->position (layered): (" << srcPort->node->position.x << ", " << srcPort->node->position.y << ")\n";
-                    std::cerr << "      srcPort->position (layered): (" << srcPort->position.x << ", " << srcPort->position.y << ")\n";
-                    std::cerr << "      srcPort->getAbsoluteAnchor() would be: ("
-                              << (srcPort->node->position.x + srcPort->position.x) << ", "
-                              << (srcPort->node->position.y + srcPort->position.y) << ")\n";
-                    std::cerr << "      After +12 padding: ("
-                              << (srcPort->node->position.x + srcPort->position.x + 12) << ", "
-                              << (srcPort->node->position.y + srcPort->position.y + 12) << ")\n";
-                    std::cerr << "      origSrc->parent->position (after applyLayout): (" << origSrc->parent->position.x << ", " << origSrc->parent->position.y << ")\n";
-                    std::cerr << "      sourcePoint (final): (" << sourcePoint.x << ", " << sourcePoint.y << ")\n";
-                }
-
-                bendPoints.insert(bendPoints.begin(), sourcePoint);
-
-                // Add target port absolute anchor using ORIGINAL port
-                Port* origTgt = tgtPort->originalPort;
-
-                // If no originalPort, this might be a dummy port - trace forward through outgoing edges
-                if (!origTgt && tgtPort->node && tgtPort->node->type == NodeType::LONG_EDGE) {
-                    // For dummy nodes, follow outgoing edge to find real target port
-                    if (!tgtPort->outgoingEdges.empty()) {
-                        LEdge* outEdge = tgtPort->outgoingEdges.front();
-                        if (outEdge->getTarget()) {
-                            origTgt = outEdge->getTarget()->originalPort;
-                            std::cerr << "    Traced dummy target forward to original port\n";
-                        }
-                    }
-                }
-
-                if (!origTgt) {
-                    std::cerr << "    WARNING: Target LPort has no originalPort pointer, skipping edge " << ledge->originalEdge->id << "\n";
-                    continue;
-                }
-                if (!origTgt->parent) {
-                    std::cerr << "    WARNING: Target originalPort has no parent (port id=" << origTgt->id << "), skipping edge " << ledge->originalEdge->id << "\n";
-                    continue;
-                }
-                Point targetPoint{
-                    origTgt->parent->position.x + origTgt->position.x,
-                    origTgt->parent->position.y + origTgt->position.y
-                };
-                std::cerr << "    Target port absolute position: (" << targetPoint.x << ", " << targetPoint.y << ")\n";
-                bendPoints.push_back(targetPoint);
 
                 // Create edge section with bendPoints (Java lines 273-276)
                 EdgeSection section;
