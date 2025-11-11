@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: EPL-2.0
 
 #include "elk/alg/layered/layered_layout.h"
+#include "elk/alg/layered/p5edges/orthogonal_edge_router.h"
 #include <algorithm>
 #include <queue>
 #include <limits>
@@ -747,24 +748,15 @@ void LayeredLayoutProvider::assignCoordinates(std::vector<Layer>& layers) {
             }
         }
 
-        // Now assign X coordinates for layers
-        double currentX = 0.0;
-        std::cerr << "\nAssigning layer X positions (with margins):\n";
-        for (size_t i = 0; i < layers.size(); i++) {
-            Layer& layer = layers[i];
+        // Use OrthogonalEdgeRouter to assign X coordinates with dynamic spacing
+        std::cerr << "\nUsing OrthogonalEdgeRouter for dynamic layer spacing:\n";
+        double edgeEdgeSpacing = 10.0;  // Spacing between routing slots
+        double edgeNodeSpacing = 10.0;  // Spacing between edges and nodes
 
-            // Place nodes horizontally within the layer (left-aligned)
-            for (LNode* node : layer.nodes) {
-                node->position.x = currentX + node->margin.left;
-            }
+        double finalWidth = p5edges::OrthogonalEdgeRouter::process(
+            layers, layerSpacing_, edgeEdgeSpacing, edgeNodeSpacing);
 
-            std::cerr << "  Layer " << i << ": x=" << currentX
-                      << ", width=" << layerWidths[i]
-                      << " (nodes=" << layer.nodes.size() << ")"
-                      << ", next x=" << (currentX + layerWidths[i] + layerSpacing_) << "\n";
-            currentX += layerWidths[i] + layerSpacing_;
-        }
-        std::cerr << "Final graph width: " << currentX - layerSpacing_ << "\n";
+        std::cerr << "Final graph width (with dynamic spacing): " << finalWidth << "\n";
 
         // Cleanup segments
         for (LinearSegment* seg : linearSegments) {
