@@ -594,70 +594,65 @@ std::vector<LNode*> LayeredLayoutProvider::assignLayersLongestPath(std::vector<L
 
 void LayeredLayoutProvider::insertDummyNodes(std::vector<LNode*>& nodes, std::vector<LEdge*>& edges,
                                              std::vector<Layer>& layers) {
-    std::vector<LEdge*> longEdges;
-
-    // Find edges spanning multiple layers
-    for (LEdge* edge : edges) {
-        LNode* srcNode = edge->getSource()->getNode();
-        LNode* tgtNode = edge->getTarget()->getNode();
-        if (srcNode && tgtNode) {
-            int layerDiff = std::abs(tgtNode->layerIndex - srcNode->layerIndex);
-            if (layerDiff > 1) {
-                longEdges.push_back(edge);
-            }
-        }
+    // Match Java LongEdgeSplitter: iterate layer by layer (Java lines 67-93)
+    if (layers.size() <= 2) {
+        return;
     }
 
-    // Insert dummy nodes for long edges
-    for (LEdge* edge : longEdges) {
-        LNode* srcNode = edge->getSource()->getNode();
-        LNode* tgtNode = edge->getTarget()->getNode();
+    for (size_t layerIdx = 0; layerIdx + 1 < layers.size(); ++layerIdx) {
+        Layer& currentLayer = layers[layerIdx];
+        int nextLayerIndex = layerIdx + 1;
 
-        int startLayer = std::min(srcNode->layerIndex, tgtNode->layerIndex);
-        int endLayer = std::max(srcNode->layerIndex, tgtNode->layerIndex);
+        // Iterate through nodes in current layer
+        for (LNode* node : currentLayer.nodes) {
+            // Iterate through ports
+            for (LPort* port : node->ports) {
+                // Iterate through outgoing edges (need to collect first to avoid iterator invalidation)
+                std::vector<LEdge*> outgoingEdges(port->outgoingEdges.begin(), port->outgoingEdges.end());
+                for (LEdge* edge : outgoingEdges) {
+                    LPort* targetPort = edge->getTarget();
+                    LNode* targetNode = targetPort->getNode();
+                    int targetLayerIndex = targetNode->layerIndex;
 
-        LPort* prevPort = edge->getSource();
-        for (int layer = startLayer + 1; layer < endLayer; ++layer) {
-            // Create dummy node
-            LNode* dummy = new LNode();
-            dummy->type = NodeType::LONG_EDGE;
-            dummy->layerIndex = layer;
-            dummy->size = Size(1, 1);  // Minimal size
-            nodes.push_back(dummy);
-            layers[layer].nodes.push_back(dummy);
+                    // If edge doesn't go to current or next layer, split it (Java line 83)
+                    if (targetLayerIndex != (int)layerIdx && targetLayerIndex != nextLayerIndex) {
+                        // Create dummy node in next layer (Java line 88)
+                        LNode* dummy = new LNode();
+                        dummy->type = NodeType::LONG_EDGE;
+                        dummy->layerIndex = nextLayerIndex;
+                        dummy->size = Size(1, 1);
+                        nodes.push_back(dummy);
+                        layers[nextLayerIndex].nodes.push_back(dummy);
 
-            // Create ports for dummy (in and out)
-            LPort* dummyIn = new LPort();
-            dummyIn->node = dummy;
-            dummyIn->side = PortSide::WEST;
-            dummyIn->portType = PortType::INPUT;  // Receives incoming edges
-            // Link dummy port back to original source port for rendering
-            if (prevPort && prevPort->originalPort) {
-                dummyIn->originalPort = prevPort->originalPort;
+                        // Create ports for dummy
+                        LPort* dummyIn = new LPort();
+                        dummyIn->node = dummy;
+                        dummyIn->side = PortSide::WEST;
+                        dummyIn->portType = PortType::INPUT;
+                        dummy->ports.push_back(dummyIn);
+
+                        LPort* dummyOut = new LPort();
+                        dummyOut->node = dummy;
+                        dummyOut->side = PortSide::EAST;
+                        dummyOut->portType = PortType::OUTPUT;
+                        dummy->ports.push_back(dummyOut);
+
+                        // Save original target
+                        LPort* oldEdgeTarget = edge->getTarget();
+
+                        // Modify current edge to end at dummy
+                        edge->setTarget(dummyIn);
+
+                        // Create NEW edge from dummy to old target
+                        LEdge* dummyEdge = new LEdge();
+                        dummyEdge->originalEdge = edge->originalEdge;
+                        dummyEdge->setSource(dummyOut);
+                        dummyEdge->setTarget(oldEdgeTarget);
+                        edges.push_back(dummyEdge);
+                    }
+                }
             }
-            dummy->ports.push_back(dummyIn);
-
-            LPort* dummyOut = new LPort();
-            dummyOut->node = dummy;
-            dummyOut->side = PortSide::EAST;
-            dummyOut->portType = PortType::OUTPUT;  // Sends outgoing edges
-            // Link dummy port back to original source port for rendering
-            if (prevPort && prevPort->originalPort) {
-                dummyOut->originalPort = prevPort->originalPort;
-            }
-            dummy->ports.push_back(dummyOut);
-
-            // Create edge segment
-            LEdge* segment = new LEdge();
-            segment->setSource(prevPort);
-            segment->setTarget(dummyIn);
-            edges.push_back(segment);
-
-            prevPort = dummyOut;
         }
-
-        // Update original edge to connect from last dummy
-        edge->setSource(prevPort);
     }
 }
 
