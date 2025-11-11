@@ -39,6 +39,7 @@ void WestToEastRoutingStrategy::calculateBendPoints(HyperEdgeSegment* segment, d
     // Calculate coordinates for each port's bend points
     double segmentX = startPos + segment->getRoutingSlot() * edgeSpacing;
 
+    std::cerr << "    calculateBendPoints: startPos=" << startPos << " slot=" << segment->getRoutingSlot() << " segmentX=" << segmentX << "\n";
     std::cerr << "    calculateBendPoints: segment has " << segment->getPorts().size() << " ports\n";
     for (LPort* port : segment->getPorts()) {
         double sourceY = port->getAbsoluteAnchor().y;
@@ -65,18 +66,24 @@ void WestToEastRoutingStrategy::calculateBendPoints(HyperEdgeSegment* segment, d
                     // If this segment was split, we need two additional bend points
                     HyperEdgeSegment* splitPartner = segment->getSplitPartner();
                     if (splitPartner != nullptr) {
+                        std::cerr << "          SPLIT SEGMENT: partner slot=" << splitPartner->getRoutingSlot() << "\n";
                         double splitY = splitPartner->getIncomingConnectionCoordinates().front();
 
                         bend = Point(currentX, splitY);
                         edge->getBendPoints().push_back(bend);
+                        std::cerr << "          Added bend: (" << bend.x << ", " << bend.y << ")\n";
                         addJunctionPointIfNecessary(edge, currentSegment, bend, true);
 
                         // Advance to the split partner's routing slot
+                        double prevX = currentX;
                         currentX = startPos + splitPartner->getRoutingSlot() * edgeSpacing;
+                        std::cerr << "          Split partner X: startPos=" << startPos << " + slot=" << splitPartner->getRoutingSlot() << " * spacing=" << edgeSpacing << " = " << currentX << "\n";
+                        std::cerr << "          ERROR: Using startPos from current layer interval, but split partner may be in different interval!\n";
                         currentSegment = splitPartner;
 
                         bend = Point(currentX, splitY);
                         edge->getBendPoints().push_back(bend);
+                        std::cerr << "          Added bend: (" << bend.x << ", " << bend.y << ")\n";
                         addJunctionPointIfNecessary(edge, currentSegment, bend, true);
                     }
 
