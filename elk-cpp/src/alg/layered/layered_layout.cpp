@@ -79,6 +79,21 @@ void LayeredLayoutProvider::importGraph(Node* graph, std::vector<LNode*>& nodes,
         lnode->originalNode = child.get();
         lnode->size = child->size;
         lnode->position = child->position;
+
+        // Read layer constraint property if set
+        if (child->hasProperty("org.eclipse.elk.layered.layering.layerConstraint")) {
+            std::string constraint = child->getProperty<std::string>("org.eclipse.elk.layered.layering.layerConstraint");
+            if (constraint == "FIRST") {
+                lnode->layerConstraint = LayerConstraint::FIRST;
+            } else if (constraint == "FIRST_SEPARATE") {
+                lnode->layerConstraint = LayerConstraint::FIRST_SEPARATE;
+            } else if (constraint == "LAST") {
+                lnode->layerConstraint = LayerConstraint::LAST;
+            } else if (constraint == "LAST_SEPARATE") {
+                lnode->layerConstraint = LayerConstraint::LAST_SEPARATE;
+            }
+        }
+
         nodes.push_back(lnode);
         nodeMap[child.get()] = lnode;
 
@@ -552,6 +567,28 @@ std::vector<LNode*> LayeredLayoutProvider::assignLayersLongestPath(std::vector<L
         }
     }
 
+    // Enforce layer constraints (FIRST, LAST, etc.)
+    std::cerr << "\nEnforcing layer constraints:\n";
+    int maxLayer = maxHeight - 1;  // maxHeight - 1 is the rightmost layer
+
+    for (LNode* node : nodes) {
+        if (node->layerConstraint == LayerConstraint::FIRST ||
+            node->layerConstraint == LayerConstraint::FIRST_SEPARATE) {
+            // Force to leftmost layer (layer 0)
+            node->layerIndex = 0;
+            if (node->originalNode) {
+                std::cerr << "  " << node->originalNode->id << " -> FIRST (layer 0)\n";
+            }
+        } else if (node->layerConstraint == LayerConstraint::LAST ||
+                   node->layerConstraint == LayerConstraint::LAST_SEPARATE) {
+            // Force to rightmost layer
+            node->layerIndex = maxLayer;
+            if (node->originalNode) {
+                std::cerr << "  " << node->originalNode->id << " -> LAST (layer " << maxLayer << ")\n";
+            }
+        }
+    }
+
     return nodes;  // Return nodes vector (order doesn't matter for this algorithm)
 }
 
@@ -593,11 +630,19 @@ void LayeredLayoutProvider::insertDummyNodes(std::vector<LNode*>& nodes, std::ve
             LPort* dummyIn = new LPort();
             dummyIn->node = dummy;
             dummyIn->side = PortSide::WEST;
+            // Link dummy port back to original source port for rendering
+            if (prevPort && prevPort->originalPort) {
+                dummyIn->originalPort = prevPort->originalPort;
+            }
             dummy->ports.push_back(dummyIn);
 
             LPort* dummyOut = new LPort();
             dummyOut->node = dummy;
             dummyOut->side = PortSide::EAST;
+            // Link dummy port back to original source port for rendering
+            if (prevPort && prevPort->originalPort) {
+                dummyOut->originalPort = prevPort->originalPort;
+            }
             dummy->ports.push_back(dummyOut);
 
             // Create edge segment
