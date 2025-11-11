@@ -1004,13 +1004,26 @@ void LayeredLayoutProvider::applyLayout(const std::vector<LNode*>& nodes, const 
                 std::vector<Point> bendPoints = ledge->bendPoints;
                 std::cerr << "    Edge " << ledge->originalEdge->id << " has " << bendPoints.size() << " bend points (in layered space)\n";
 
+                // Debug: print all bend points
+                if (ledge->originalEdge->id == "e15" || ledge->originalEdge->id == "e16") {
+                    for (size_t i = 0; i < bendPoints.size(); i++) {
+                        std::cerr << "      Bend[" << i << "]: (" << bendPoints[i].x << ", " << bendPoints[i].y << ")\n";
+                    }
+                }
+
                 // Add source point from LAYERED graph (Java line 258)
                 // Use getAbsoluteAnchor() which gives position in layered graph space
                 Point sourcePoint = srcPort->getAbsoluteAnchor();
+                if (ledge->originalEdge->id == "e15" || ledge->originalEdge->id == "e16") {
+                    std::cerr << "      SourcePoint: (" << sourcePoint.x << ", " << sourcePoint.y << ")\n";
+                }
                 bendPoints.insert(bendPoints.begin(), sourcePoint);
 
                 // Add target point from LAYERED graph (Java line 263)
                 Point targetPoint = tgtPort->getAbsoluteAnchor();
+                if (ledge->originalEdge->id == "e15" || ledge->originalEdge->id == "e16") {
+                    std::cerr << "      TargetPoint: (" << targetPoint.x << ", " << targetPoint.y << ")\n";
+                }
                 bendPoints.push_back(targetPoint);
 
                 // Now offset ALL points together by graphPadding (Java line 270)
