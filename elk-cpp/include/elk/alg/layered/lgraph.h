@@ -114,6 +114,15 @@ enum class NodeType {
     BREAKING_POINT    // Dummy for graph wrapping
 };
 
+// Layer constraint for node placement (from ELK's LayerConstraint)
+enum class LayerConstraint {
+    NONE,            // No constraint
+    FIRST,           // Force to first layer (leftmost)
+    FIRST_SEPARATE,  // Force to first layer in separate rank
+    LAST,            // Force to last layer (rightmost)
+    LAST_SEPARATE    // Force to last layer in separate rank
+};
+
 // ============================================================================
 // LNode - Node in layered graph
 // ============================================================================
@@ -127,6 +136,7 @@ public:
     // Node type
     NodeType type = NodeType::NORMAL;
     PortSide extPortSide = PortSide::UNDEFINED;  // For EXTERNAL_PORT nodes
+    LayerConstraint layerConstraint = LayerConstraint::NONE;  // Layer placement constraint
 
     // Node content
     std::list<LPort*> ports;  // Use list for O(1) insert/remove

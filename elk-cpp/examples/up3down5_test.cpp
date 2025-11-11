@@ -264,48 +264,56 @@ int main() {
 
     auto node_clock = root->addChild("clock");
     node_clock->size = Size(30, 20);
+    node_clock->setProperty("org.eclipse.elk.layered.layering.layerConstraint", std::string("FIRST"));
     nodeMap["clock"] = node_clock;
     auto node_clock_p0 = node_clock->addPort("clock.Y", PortSide::EAST);
     node_clock_p0->position = Point(30, 10);
 
     auto node_data_in = root->addChild("data_in");
     node_data_in->size = Size(30, 20);
+    node_data_in->setProperty("org.eclipse.elk.layered.layering.layerConstraint", std::string("FIRST"));
     nodeMap["data_in"] = node_data_in;
     auto node_data_in_p0 = node_data_in->addPort("data_in.Y", PortSide::EAST);
     node_data_in_p0->position = Point(30, 10);
 
     auto node_up = root->addChild("up");
     node_up->size = Size(30, 20);
+    node_up->setProperty("org.eclipse.elk.layered.layering.layerConstraint", std::string("FIRST"));
     nodeMap["up"] = node_up;
     auto node_up_p0 = node_up->addPort("up.Y", PortSide::EAST);
     node_up_p0->position = Point(30, 10);
 
     auto node_down = root->addChild("down");
     node_down->size = Size(30, 20);
+    node_down->setProperty("org.eclipse.elk.layered.layering.layerConstraint", std::string("FIRST"));
     nodeMap["down"] = node_down;
     auto node_down_p0 = node_down->addPort("down.Y", PortSide::EAST);
     node_down_p0->position = Point(30, 10);
 
     auto node_carry_out = root->addChild("carry_out");
     node_carry_out->size = Size(30, 20);
+    node_carry_out->setProperty("org.eclipse.elk.layered.layering.layerConstraint", std::string("LAST"));
     nodeMap["carry_out"] = node_carry_out;
     auto node_carry_out_p0 = node_carry_out->addPort("carry_out.A", PortSide::WEST);
     node_carry_out_p0->position = Point(0, 10);
 
     auto node_borrow_out = root->addChild("borrow_out");
     node_borrow_out->size = Size(30, 20);
+    node_borrow_out->setProperty("org.eclipse.elk.layered.layering.layerConstraint", std::string("LAST"));
     nodeMap["borrow_out"] = node_borrow_out;
     auto node_borrow_out_p0 = node_borrow_out->addPort("borrow_out.A", PortSide::WEST);
     node_borrow_out_p0->position = Point(0, 10);
 
     auto node_count_out = root->addChild("count_out");
     node_count_out->size = Size(30, 20);
+    node_count_out->setProperty("org.eclipse.elk.layered.layering.layerConstraint", std::string("LAST"));
     nodeMap["count_out"] = node_count_out;
     auto node_count_out_p0 = node_count_out->addPort("count_out.A", PortSide::WEST);
     node_count_out_p0->position = Point(0, 10);
 
     auto node_parity_out = root->addChild("parity_out");
     node_parity_out->size = Size(30, 20);
+    node_parity_out->setProperty("org.eclipse.elk.layered.layering.layerConstraint", std::string("LAST"));
     nodeMap["parity_out"] = node_parity_out;
     auto node_parity_out_p0 = node_parity_out->addPort("parity_out.A", PortSide::WEST);
     node_parity_out_p0->position = Point(0, 10);
