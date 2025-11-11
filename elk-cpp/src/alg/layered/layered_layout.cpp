@@ -616,6 +616,9 @@ void LayeredLayoutProvider::insertDummyNodes(std::vector<LNode*>& nodes, std::ve
 
                     // If edge doesn't go to current or next layer, split it (Java line 83)
                     if (targetLayerIndex != (int)layerIdx && targetLayerIndex != nextLayerIndex) {
+                        std::string edgeId = edge->originalEdge ? edge->originalEdge->id : "unknown";
+                        std::cerr << "        Splitting edge " << edgeId << " from layer " << layerIdx
+                                  << " to layer " << targetLayerIndex << " (inserting dummy at layer " << nextLayerIndex << ")\n";
                         // Create dummy node in next layer (Java line 88)
                         LNode* dummy = new LNode();
                         dummy->type = NodeType::LONG_EDGE;
