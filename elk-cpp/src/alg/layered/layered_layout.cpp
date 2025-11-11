@@ -135,6 +135,24 @@ void LayeredLayoutProvider::importGraph(Node* graph, std::vector<LNode*>& nodes,
     }
     std::cerr << "Created " << edgeCount << " edges\n";
 
+    // Set port types based on edge connectivity (matching Java ELK's PortType)
+    for (auto& pair : portMap) {
+        LPort* lport = pair.second;
+        bool hasIncoming = !lport->incomingEdges.empty();
+        bool hasOutgoing = !lport->outgoingEdges.empty();
+
+        if (hasOutgoing) {
+            // If port has outgoing edges, it's an OUTPUT port
+            lport->portType = PortType::OUTPUT;
+        } else if (hasIncoming) {
+            // If port only has incoming edges, it's an INPUT port
+            lport->portType = PortType::INPUT;
+        } else {
+            // No edges connected
+            lport->portType = PortType::UNDEFINED;
+        }
+    }
+
     // Debug: Check edge connectivity for a few nodes
     for (auto& child : graph->children) {
         auto it = nodeMap.find(child.get());

@@ -182,18 +182,17 @@ void OrthogonalRoutingGenerator::createHyperEdgeSegments(
         std::map<LPort*, HyperEdgeSegment*>& portToHyperEdgeSegmentMap) {
 
     if (nodes != nullptr) {
-        std::cerr << "createHyperEdgeSegments: " << nodes->size() << " nodes, looking for ports on side " << (int)portSide << "\n";
+        std::cerr << "createHyperEdgeSegments: " << nodes->size() << " nodes, looking for OUTPUT ports on side " << (int)portSide << "\n";
         for (LNode* node : *nodes) {
             std::cerr << "  Node with " << node->getPorts().size() << " ports\n";
             for (LPort* port : node->getPorts()) {
-                std::cerr << "    Port: side=" << (int)port->side << " incoming=" << port->incomingEdges.size()
+                std::cerr << "    Port: side=" << (int)port->side << " type=" << (int)port->portType
+                          << " incoming=" << port->incomingEdges.size()
                           << " outgoing=" << port->outgoingEdges.size() << "\n";
-                // Filter for ports on the specified side that participate in edges
-                // For EAST side (source): check for outgoing edges
-                // For WEST side (target): check for incoming edges
-                bool hasRelevantEdges = !port->outgoingEdges.empty() || !port->incomingEdges.empty();
-                if (hasRelevantEdges && port->side == portSide) {
-                    std::cerr << "      -> Creating hyperedge segment for this port\n";
+                // Filter for OUTPUT ports on the specified side (matching Java ELK exactly)
+                // This matches: node.getPorts(PortType.OUTPUT, portSide)
+                if (port->portType == PortType::OUTPUT && port->side == portSide) {
+                    std::cerr << "      -> Creating hyperedge segment for this OUTPUT port\n";
                     HyperEdgeSegment* hyperEdge = portToHyperEdgeSegmentMap[port];
                     if (hyperEdge == nullptr) {
                         hyperEdge = new HyperEdgeSegment(routingStrategy_);

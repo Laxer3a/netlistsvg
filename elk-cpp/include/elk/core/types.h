@@ -152,6 +152,12 @@ enum class PortSide {
     WEST
 };
 
+enum class PortType {
+    UNDEFINED,
+    INPUT,
+    OUTPUT
+};
+
 enum class EdgeRouting {
     UNDEFINED,
     POLYLINE,      // Simple straight line segments

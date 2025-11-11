@@ -217,6 +217,7 @@ public:
 
     // Port placement
     PortSide side = PortSide::UNDEFINED;
+    PortType portType = PortType::UNDEFINED;  // INPUT or OUTPUT
     Point anchor;  // Edge attachment point (relative to port position)
     bool explicitlySuppliedPortAnchor = false;
 
