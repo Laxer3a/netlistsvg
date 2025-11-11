@@ -12,6 +12,7 @@
 #include <string>
 #include <memory>
 #include <climits>
+#include <random>
 
 namespace elk {
 namespace layered {
@@ -410,12 +411,21 @@ public:
     // Graph-level layout data
     LPadding padding;
     Point offset;
+    Size size;  // Final graph size
+
+    // Spacing values for edge routing
+    double nodeNodeSpacing = 50.0;
+    double edgeEdgeSpacing = 10.0;
+    double edgeNodeSpacing = 10.0;
+
+    // Random number generator for edge routing
+    std::mt19937 random;
 
     // Parent graph (for hierarchical layout)
     LGraph* parentGraph = nullptr;
     LNode* parentNode = nullptr;
 
-    LGraph() = default;
+    LGraph() : random(42) {}  // Default seed
 
     // Add elements
     LNode* addNode();

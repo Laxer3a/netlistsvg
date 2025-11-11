@@ -30,9 +30,16 @@ public:
      * This also computes and sets horizontal node positions, taking into account the
      * dynamic spacing required for edge routing slots.
      *
-     * @param layeredGraph the layered graph to process
+     * @param layers the layers containing nodes
+     * @param nodeNodeSpacing minimum spacing between node layers
+     * @param edgeEdgeSpacing spacing between edge routing slots
+     * @param edgeNodeSpacing spacing between edges and nodes
+     * @return the final graph width
      */
-    static void process(LGraph* layeredGraph);
+    static double process(std::vector<Layer>& layers,
+                          double nodeNodeSpacing,
+                          double edgeEdgeSpacing,
+                          double edgeNodeSpacing);
 };
 
 } // namespace p5edges
